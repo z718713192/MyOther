@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dao.ShopDao">
+	<!-- 自定结果映射 ORM -->
+	<resultMap type="com.pojo.Shops" id="shop">
+		<id property="spid" column="pid" />
+		<result property="spname" column="pname" />
+		<result property="sptype" column="ptype" />
+		<result property="spprice" column="pprice" />
+		<result property="spimg" column="pimg" />
+		<result property="spflag" column="pflag" /> 
+	</resultMap>  
+	
+	<select id="findshops1"  parameterType="com.pojo.Shops">
+		select * from Shops
+		where pid=#{spid}
+	</select> 
+	 
+	<insert id="addshop" parameterType="com.pojo.Shops">
+		insert into Shops(pname,ptype,pprice,pimg,pflag)
+		values(#{spname},#{sptype},#{spprice,jdbcType=DOUBLE},#{spimg},#{spflag})
+	</insert>
+
+	<delete id="delete" parameterType="com.pojo.Shops">
+		delete from Shops
+		where pid=#{spid}
+	</delete>
+
+	<update id="update" parameterType="com.pojo.Shops">
+		update Shops
+		<set>
+			<if test="spname!=null">
+				pname=#{spname},
+			</if>
+			<if test="sptype!=null">
+				ptype=#{sptype},
+			</if>
+			<if test="spprice!=null">
+				pprice=#{spprice},
+			</if>
+			<if test="spimg!=null">
+				pimg=#{spimg},
+			</if>
+			<if test="spflag!=null">
+				pflag=#{spflag},
+			</if>
+		</set>
+		where pid=#{spid}
+	</update>  
+	
+	<select id="querysShops" resultMap="shop" parameterType="com.pojo.Shops">
+		select * from shops 
+		<where> 
+			<if test="sptype!=null">
+				 and ptype like '%#{sptype}%'
+			</if>
+			<if test="spflag!=null">
+				 and pflag like '%#{spflag}%'
+			</if>
+			<if test="spname!=null">
+				 and pname like '%#{spname}%' 
+			</if>
+		</where>
+		order by pid desc
+	</select>
+</mapper>

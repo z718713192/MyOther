@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>JS语法</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <!--javaScript的结构-->
+  <script type="text/javaScript">
+    <!--
+	   document.write("<h1>大家上午好！</h1>");
+
+	-->
+  </script>
+
+ </head>
+
+ <body>
+  
+ </body>
+</html>

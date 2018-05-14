@@ -1,0 +1,106 @@
+<!--
+   @(#)$Id: generic-tree.xml 14660 2012-03-04 11:19:05Z rogge $
+
+   Copyright (c) DbVis Software AB. All Rights Reserved.
+-->
+
+<!--
+  These variables are provided by DbVisualizer and the XML may depend on these:
+
+  ${dbvis-defaultCatalogOrSchema}  - Is the default catalog (aka database) for
+                                     databases such as Sybase, MySQL,
+                                     SQL Server, etc. The default
+                                     database is specified in the URL during
+                                     connect. If the actual database do not
+                                     support the catalog concept then this
+                                     variable is simply null.
+
+  ${dbvis-jdbcURL} - The JDBC URL that was used to establish the connection.
+
+  ${dbvis-jdbcUser} - The user name as specified in the connection properties.
+
+  ${DIB} / ${DIE} - Delimited Identifier Begin / End
+-->
+   
+<!-- =================================================================== -->
+<!-- Definition of the database objects tree structure -->
+<!-- =================================================================== -->
+
+<ObjectsTreeDef id="generic">
+   <DataNode type="Catalog" label="${getCatalogs.TABLE_CAT}" is-empty-output="continue">
+      <SetVar name="catalog" value="${getCatalogs.TABLE_CAT}"/>
+      <Command idref="getCatalogs">
+         <Filter type="Catalog" name="Catalog">
+            <Column index="TABLE_CAT" name="Name"/>
+         </Filter>
+      </Command>
+      <DataNode type="Schema" label="${getSchemas.TABLE_SCHEM}" is-empty-output="continue">
+         <SetVar name="schema" value="${getSchemas.TABLE_SCHEM}"/>
+         <Command idref="getSchemas">
+            <Filter type="Schema" name="Schema">
+               <Column index="TABLE_SCHEM" name="Name"/>
+            </Filter>
+         </Command>
+         <DataNode type="Tables" label="${getTableTypes.TABLE_TYPE}" is-empty-output="continue">
+            <SetVar name="tableType" value="${getTableTypes.TABLE_TYPE}"/>
+            <Command idref="getTableTypes"/>
+
+            <DataNode type="Table" label="${getTables.TABLE_NAME}" sort="getTables.TABLE_NAME" isLeaf="#sp.getProperty('dbvis.license.type') in {'Free'}">
+               <SetVar name="objectname" value="${getTables.TABLE_NAME}"/>
+               <SetVar name="rowcount" value="true"/>
+               <SetVar name="acceptInQB" value="true"/>
+               <Command idref="getTables">
+                  <Input name="catalog" value="${catalog}"/>
+                  <Input name="schema" value="${schema}"/>
+                  <Input name="objectname" value="%"/>
+                  <Input name="tableType" value="${tableType}"/>
+                  <Filter type="Table" name="Table">
+                     <Column index="TABLE_NAME" name="Name"/>
+                  </Filter>
+               </Command>
+
+               <!-- Need to keep the objectname for the current table in
+                       a new variable so that the viewers will be able to pick up
+                       the correct input to display -->
+               <SetVar name="theTableName" value="${objectname}"/>
+
+               <GroupNode type="Columns" label="Columns">
+                  <DataNode type="Column" label="${getColumns.COLUMN_NAME}   (${getColumns.TYPE_NAME})" isLeaf="true">
+                     <SetVar name="objectname" value="${getColumns.COLUMN_NAME}"/>
+                     <Command idref="getColumns">
+                        <Input name="schema" value="${schema}"/>
+                        <Input name="catalog" value="${catalog}"/>
+                        <Input name="objectname" value="${objectname}"/>
+                     </Command>
+                  </DataNode>
+               </GroupNode>
+               <GroupNode type="Indexes" label="Indexes">
+                  <DataNode type="Index" label="${getIndexes.INDEX_NAME}   (${getIndexes.ORDINAL_POSITION}: ${getIndexes.COLUMN_NAME})" isLeaf="true">
+                     <SetVar name="objectname" value="${getIndexes.INDEX_NAME}"/>
+                     <Command idref="getIndexes">
+                        <Input name="schema" value="${schema}"/>
+                        <Input name="catalog" value="${catalog}"/>
+                        <Input name="objectname" value="${theTableName}"/>
+                        <Output modelaction="removeisnullrows" index="INDEX_NAME"/>
+                     </Command>
+                  </DataNode>
+               </GroupNode>
+            </DataNode>
+
+         </DataNode>
+         <GroupNode type="Procedures" label="Procedures">
+         <DataNode type="Procedure" label="${getProcedures.PROCEDURE_NAME}" isLeaf="true">
+            <SetVar name="objectname" value="${getProcedures.PROCEDURE_NAME}"/>
+            <Command idref="getProcedures">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="schema" value="${schema}"/>
+               <Input name="objectname" value="%"/>
+               <Filter type="Procedure" name="Procedure">
+                  <Column index="PROCEDURE_NAME" name="Name"/>
+               </Filter>
+               </Command>
+            </DataNode>
+         </GroupNode>
+      </DataNode>
+   </DataNode>
+</ObjectsTreeDef>

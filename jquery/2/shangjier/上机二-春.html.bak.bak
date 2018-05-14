@@ -1,0 +1,18 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> New Document </title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+ </head>
+
+ <body>
+	<div align="center">
+		<img src="E:\S2\使用jQuery制作网页\2\20150518\03 提供给学员的上机练习素材\练习2：查看一年四季变化\images\spring.jpg"/>
+		<br/>
+		<a href="javascript:location.href='上机二-夏.html'">夏</a>&nbsp;<a href="javascript:location.href='上机二-秋.html'">秋</a>&nbsp;<a href="javascript:location.href='上机二-冬.html'">冬</a>&nbsp;<a></a>
+	</div>
+ </body>
+</html>

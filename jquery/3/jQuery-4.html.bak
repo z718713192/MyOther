@@ -1,0 +1,35 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> jQuery-4 </title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <script type="text/javaScript" src="js/jquery-1.8.3.js"></script>
+<style type="text/css">
+	li{
+		display:none;
+	}
+</style>
+	<script type="text/javaScript">
+		<!--
+			 $(function(){
+				 $("h3").click(function(){
+					 $("h3").css("background","blue").next(). $("li") .css("display","block") ; 
+					  
+				 });
+			 });
+		-->
+	</script>
+ </head> 
+	<h3>如何使用叮当网购物？</h3>
+	<ul>
+		<li>方法一：注册成为网站会员</li>
+		<li>方法二：使用合作企业账号登录，如新浪微博、QQ、人人网账户</li>
+	</ul>
+	
+ <body>
+  
+ </body>
+</html>

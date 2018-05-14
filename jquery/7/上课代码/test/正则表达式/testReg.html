@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> 正则表达式 </title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <script type="text/javascript" src="js/jquery-1.8.3.js"></script>
+  <script type="text/javascript">
+      $(function(){
+		 $("[value=验证]").click(function(){
+		     //正则表达式规则(匹配0-9的数字)
+			 var reg =/\d/;
+			 var vl =$("#num").val();//输入框的值
+			 //将规则与输入的值匹配test()
+			 if(reg.test(vl)){
+				alert("填写正确");
+			 }else{
+				alert("填写不正确");
+			 }
+		 });
+	  });
+  
+  </script>
+  
+ </head>
+
+ <body>
+     输入0-9的数字：
+	 <input type="text" id="num">
+     <br>
+	 <input type="button" value="验证">
+ </body>
+</html>

@@ -1,0 +1,74 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> 非缘勿扰</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <style type="text/css">
+		#maindiv{
+			margin:auto;
+			border:0px solid;
+			height:400px;
+			width:765px
+		}
+		#maindiv div{  
+			border:0px solid;
+			float:left;
+		}
+		#rightdiv { 
+			line-height:35px;
+			width:600px;
+			border:0px solid;
+			float:right;
+		}
+  </style>
+  <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+
+  <script type="text/javascript">
+		$(function(){
+			 $("dt").click(function(){
+					$("strong").css("color","#FF0099")
+					
+			 }) 
+
+			 $("#biao").click(function(){ 
+				$("[id='you']").css("color","#10A14B")
+				$("[id='you']").css("background","#E0F8EA")
+				$("[id='you']").css("padding","2px")
+			})
+			$("[class=danyan]").click(function(){ 
+				$("[class='赖水清']").css("font-weight","bold")
+			})
+
+			$("[alt='收藏']").click(function(){ 
+				 alert("收藏成功！！")
+			})
+
+		})	 
+  </script>
+ </head>
+
+ <body>
+  <div id="maindiv">
+	<div>
+		<img src="images/pic.gif"/>
+		<br/>
+		<br/>
+		<img src="images/col.gif" alt="收藏"/> 
+	</div>
+
+	<div id="rightdiv">
+		<dl>
+			<dt><strong>非缘勿扰</strong></dt>
+			<dd><strong >主演：</strong><span id="you">苏有朋</span>/秦岗/傅艺伟等</dd>
+			<dd><strong class="danyan">导演：</strong><span class="赖水清">赖水清</span></dd>
+			<dd><strong id="biao">标签：</strong>苏有朋国产电视剧<span id="you">2013</span>连续剧</dd>
+			<dd><strong>剧情：</strong>当代说了DNF开始的拿出来说你从上课阿狸才开始缺口卡上潇洒，吉安、。。。。。。</dd>
+			<dd><img src="images/btn.gif"/ ></dd>
+		</dl>
+	</div>
+  </div>
+ </body>
+</html>

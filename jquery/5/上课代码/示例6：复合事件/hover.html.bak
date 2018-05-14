@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>hover()事件</title>
+<script type="text/javascript" src="./js/jquery-1.8.3.min.js" ></script>
+<style type="text/css" >
+a{
+	color:#000;
+	text-decoration:none;
+}
+ul{
+	list-style:none;
+}
+ul li{
+	width:140px;
+}
+#menu_1{
+	border:1px dotted #666;
+	border-top:none;
+	padding:0px 5px 5px 5px;	
+}
+#menu_1 li{
+	margin: 5px 0px;
+}
+li.fli{
+	display:block;
+	float:left;
+	padding:0px 10px;
+}
+
+
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+   $("#myaccound").hover(
+	   //代表mouseover
+	   function(){
+		 $("#menu_1").css("display","block");
+	   },function(){ //代表mouseout
+	     $("#menu_1").css("display","none"); 
+	   }
+   );
+	
+	
+});
+ 
+</script>
+</head>
+<body>
+ <div id="nav">
+ 	<ul>
+    	<li class="fli"><a href="#">我的订单</a></li>
+        <li class="fli" id="myaccound">
+			<a href="#">我的宜美惠▼</a>
+			<ul id="menu_1" style="display:none;">
+            	<li><a href="#">我的优惠券</a></li>
+                <li><a href="#">收藏夹</a></li>
+                <li><a href="#">短信息</a></li>
+            </ul>
+        </li>
+        <li class="fli"><a href="#">我网站导航▼</a></li>
+    </ul>
+ </div>
+</body>
+</html>

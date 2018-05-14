@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>无标题文档</title>	
+<style type="text/css">
+	.a{
+		background:red;
+	}
+</style>
+<script type="text/javaScript" src="js/jquery-1.8.3.js"></script>
+	<script type="text/javaScript">
+		<!--  
+			$(function(){
+				$("h3").click(function(){
+					$("ul").css("display","block")
+				})
+			})
+			$(function(){
+				$("li").hover(function(){
+					$(this).addClass("a")
+				},function(){
+					$(this).removeClass
+				})
+			})
+		-->
+	</script>
+</head>
+
+<body>
+	<h3>g购物特权</h3>
+	<ul style="display:none;">
+		<li><img src="images/huan.gif"/>全额兑换</li>
+		<li><img src="images/you.gif"/>俱乐部包邮卡</li>
+		<li><img src="images/gouwu.gif"/>购物领金币</li>
+		<li><img src="images/meiri.gif"/>每日领金币</li>
+		<li><img src="images/zhe.gif"/>VIP阶梯价</li>
+	</ul>
+</body>
+</html>

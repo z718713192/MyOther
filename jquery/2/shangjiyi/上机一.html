@@ -1,0 +1,54 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>简易购物车</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+	<script type="text/javascript">
+		<!--
+			function openwin(){
+				var bo=window.confirm("您本次购买的商品信息如下：\n\n商品名称：洛基亚N95；\n 商品数量：1件;\n运费：20元；\n\n请确认以上信息是否有误！！！");
+				if(bo==true){
+					alert("您的订单已提交");
+				}else{
+					alert("取消提交！！")
+				}
+			}
+
+			function openquanping(){
+				window.open("上机一.html","","fullscreen=yes")
+			}
+		-->
+	</script>	
+ </head>
+
+ <body>
+	<table border=1 >
+		<tr>
+			<td colspan=5 align="center" >简易购物车</td>  
+		</tr>
+		<tr>
+			<td>商品名称</td> 
+			<td>数量（件）</td>  
+			<td>单价（元）</td> 
+			<td>运费（元）</td>
+			<td>合计（元）</td>
+		</tr>
+		<tr>
+			<td>洛基亚N95</td> 
+			<td>1</td>  
+			<td>2200</td> 
+			<td>20</td>
+			<td>2400</td>
+		</tr>
+		<tr>
+			<td  colspan=5 align="center">
+				<input type="button" value="提交订单"  onclick="openwin()"/>&nbsp;
+				<input type="button" value="全屏显示"   onclick="openquanping()"/>
+			</td>  
+		</tr>
+	</table>
+ </body>
+</html>

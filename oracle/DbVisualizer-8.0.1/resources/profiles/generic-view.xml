@@ -1,0 +1,257 @@
+<!--
+   @(#)$Id: generic-view.xml 13243 2011-04-14 09:27:45Z rogge $
+
+   Copyright (c) DbVis Software AB. All Rights Reserved.
+-->
+
+<!--
+  These variables are provided by DbVisualizer and the XML may depend on these:
+
+  ${dbvis-defaultCatalogOrSchema}  - Is the default catalog (aka database) for
+                                     databases such as Sybase, MySQL,
+                                     SQL Server, etc. The default
+                                     database is specified in the URL during
+                                     connect. If the actual database do not
+                                     support the catalog concept then this
+                                     variable is simply null.
+
+  ${dbvis-jdbcURL} - The JDBC URL that was used to establish the connection.
+
+  ${dbvis-jdbcUser} - The user name as specified in the connection properties.
+
+  ${DIB} / ${DIE} - Delimited Identifier Begin / End
+
+  These default viewers are supplied i.e viewer="xxx" whereas xxx is any
+  of the following:
+
+  grid
+  text
+  form
+  node-form
+  table-refs
+    uses a model produced by either getTables or a custom command (with the SQL
+    element) to present a references graph. The following columns must exist
+    in the model: TABLE_CAT, TABLE_SCHEM, TABLE_NAME (required), TABLE_TYPE,
+    REMARKS
+  tables-refs
+    uses a model produced by either getTables or a custom command (with the SQL
+    element) to present a references graph. The following columns must exist
+    in the model: TABLE_CAT, TABLE_SCHEM, TABLE_NAME (required), TABLE_TYPE,
+    REMARKS
+  table-data
+  table-rowcount
+  message
+
+-->
+
+<!-- =================================================================== -->
+<!-- Definition of the "generic" database objects views -->
+<!-- =================================================================== -->
+
+<ObjectsViewDef id="generic">
+
+   <ObjectView type="Catalog">
+      <DataView type="Tables" label="Tables" viewer="grid">
+         <Input name="menuItem" value="Script: SELECT ALL">
+            <Input name="command" value="select * from ${schema=TABLE_SCHEM}${object=TABLE_NAME}"/>
+         </Input>
+         <Input name="menuItem" value="Script: DROP TABLE">
+            <Input name="command" value="drop table ${schema=TABLE_SCHEM}${object=TABLE_NAME}"/>
+         </Input>
+
+         <Command idref="getTables">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="%"/>
+            <Input name="tableType" value="${tableType}"/>
+         </Command>
+      </DataView>
+      <DataView type="References" label="References" viewer="tables-refs"
+                doclink="../databaseExplorer/databaseExplorer.html#mozTocId809328">
+         <Command idref="getTables">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="%"/>
+            <Input name="tableType" value="${tableType}"/>
+         </Command>
+      </DataView>
+   </ObjectView>
+
+   <ObjectView type="Schema">
+      <DataView type="Tables" label="Tables" viewer="grid">
+         <Input name="menuItem" value="Script: SELECT ALL">
+            <Input name="command" value="select * from ${schema=TABLE_SCHEM}${object=TABLE_NAME}"/>
+         </Input>
+         <Input name="menuItem" value="Script: DROP TABLE">
+            <Input name="command" value="drop table ${schema=TABLE_SCHEM}${object=TABLE_NAME}"/>
+         </Input>
+
+         <Command idref="getTables">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="%"/>
+            <Input name="tableType" value="${tableType}"/>
+         </Command>
+      </DataView>
+      <DataView type="References" label="References" viewer="tables-refs"
+                doclink="../databaseExplorer/databaseExplorer.html#mozTocId809328">
+         <Command idref="getTables">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="%"/>
+            <Input name="tableType" value="${tableType}"/>
+         </Command>
+      </DataView>
+   </ObjectView>
+
+   <ObjectView type="Tables">
+      <DataView type="Tables" label="Tables" viewer="grid">
+         <Input name="menuItem" value="Script: SELECT ALL">
+            <Input name="command" value="select * from ${schema=TABLE_SCHEM}${object=TABLE_NAME}"/>
+         </Input>
+         <Input name="menuItem" value="Script: DROP">
+            <Input name="command" value="drop ${tableType} ${schema=TABLE_SCHEM}${object=TABLE_NAME}"/>
+         </Input>
+
+         <Command idref="getTables">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="%"/>
+            <Input name="tableType" value="${tableType}"/>
+         </Command>
+      </DataView>
+      <DataView type="References" label="References" viewer="tables-refs"
+                doclink="../databaseExplorer/databaseExplorer.html#mozTocId809328">
+         <Command idref="getTables">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="%"/>
+            <Input name="tableType" value="${tableType}"/>
+         </Command>
+      </DataView>
+   </ObjectView>
+
+   <ObjectView type="Table">
+      <DataView type="Info" label="Info" viewer="node-form"/>
+
+      <DataView type="Columns" label="Columns" viewer="grid">
+         <Command idref="getColumns">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="${objectname}"/>
+         </Command>
+      </DataView>
+
+      <DataView type="Data" label="Data" viewer="table-data"/>
+
+      <DataView type="RowCount" label="Row Count" viewer="table-rowcount"/>
+
+      <DataView type="PrimaryKey" label="Primary Key" viewer="grid">
+         <Command idref="getPrimaryKeys">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="${objectname}"/>
+         </Command>
+      </DataView>
+
+      <DataView type="Index" label="Indexes" viewer="grid">
+         <Command idref="getIndexes">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="${objectname}"/>
+            <Output modelaction="removerowsifequalto" index="ORDINAL_POSITION" value="0"/>
+         </Command>
+      </DataView>
+
+      <DataView type="TablePrivileges" label="Grants" viewer="grid">
+         <Command idref="getPrivileges">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="${objectname}"/>
+         </Command>
+      </DataView>
+
+      <DataView type="RowId" label="Row Id" viewer="grid">
+         <Command idref="getBestRowIdentifier">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="${objectname}"/>
+         </Command>
+      </DataView>
+
+      <DataView type="References" label="References" viewer="table-refs"
+                doclink="../databaseExplorer/databaseExplorer.html#mozTocId809328"/>
+
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+         <DataView type="Navigator" label="Navigator" viewer="navigator"
+                   doclink="../navigator/navigator.html"/>
+      </If>
+   </ObjectView>
+
+   <ObjectView type="Columns">
+      <DataView type="Columns" label="Columns" viewer="grid">
+         <Command idref="getColumns">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="${theTableName}"/>
+         </Command>
+      </DataView>
+   </ObjectView>
+
+   <ObjectView type="Column">
+      <DataView type="Column" label="Column" viewer="node-form"/>
+   </ObjectView>
+
+   <ObjectView type="Indexes">
+      <DataView type="Indexes" label="Indexes" viewer="grid">
+         <Command idref="getIndexes">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="${theTableName}"/>
+            <Output modelaction="removeisnullrows" index="INDEX_NAME"/>
+         </Command>
+      </DataView>
+   </ObjectView>
+
+   <ObjectView type="Index">
+      <DataView type="Index" label="Index" viewer="node-form"/>
+   </ObjectView>
+
+   <ObjectView type="Procedures">
+      <DataView type="Procedures" label="Procedures" viewer="grid">
+         <Command idref="getProcedures">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="%"/>
+         </Command>
+      </DataView>
+   </ObjectView>
+
+   <ObjectView type="Procedure">
+      <DataView type="Columns" label="Procedure Columns" viewer="grid">
+         <Command idref="getProcedureColumns">
+            <Input name="catalog" value="${catalog}"/>
+            <Input name="schema" value="${schema}"/>
+            <Input name="objectname" value="${objectname}"/>
+         </Command>
+      </DataView>
+   </ObjectView>
+
+   <!-- DBA (this is here primarly for sub profiles as it is not used in -->
+   <!-- the generic profile -->
+
+   <ObjectView type="DBA">
+      <DataView type="DBA" label="DBA" viewer="message">
+         <Message>
+            <![CDATA[
+<html>
+  This object groups various <b>DBA views</b> that may require special
+  privileges i.e they may not work properly or give error messages if
+  authorization is not adequate.
+</html>
+         ]]>
+         </Message>
+      </DataView>
+   </ObjectView>
+
+</ObjectsViewDef>

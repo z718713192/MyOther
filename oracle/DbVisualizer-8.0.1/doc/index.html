@@ -1,0 +1,452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+      <title>DbVisualizer - DbVisualizer Users Guide</title>
+
+      <style type="text/css">
+         * {
+            text-decoration: none;
+            outline: none
+         }
+
+         body, th, td, p, div, span, a, ul, ol, dl, h1, h2, h3, h4, h5, h6, li, big, small, b {
+            font-family: Arial, Verdana, sans-serif;
+         }
+
+         body, th, td, p, div, span, ul, ol, dl, li {
+            font-size: 12px;
+            line-height: 1.5em;
+         }
+
+         strong, b, th, thead td, h1, h2, h3, h4, h5, h6, dt, label {
+            font-weight: bold
+         }
+
+         code, .code, samp, pre, tt {
+            font-size: 12px;
+            font-family: monaco, "Lucida Console", courier, mono-space;
+            line-height: 1.5em;
+         }
+
+         pre {
+            white-space: pre
+         }
+
+         pre * {
+            font-size: 12px;
+            white-space: pre
+         }
+
+         small, sup, sub {
+            font-size: 85%
+         }
+
+         big {
+            font-size: 125%;
+            line-height: 80%
+         }
+
+         #mozToc ul {
+            list-style: none;
+            padding: 0 0 0 2em;
+            margin: 0;
+         }
+
+         #mozToc li {
+            list-style: none;
+         }
+
+         div.ugtable table th {
+            border: none;
+            border-bottom: 4px #bbbbbb solid;
+            text-align: left;
+         }
+
+         div.ugtable table td {
+            border: none;
+            border-bottom: 1px #bbbbbb dotted;
+            vertical-align: top;
+         }
+
+         div.ugtable table td table td {
+            border: none;
+            border-bottom: none;
+            vertical-align: top;
+         }
+
+         div.ugprofiletable table th {
+            border: none;
+            border-bottom: 4px #bbbbbb solid;
+            text-align: left;
+         }
+
+         div.ugprofiletable table td {
+            border: none;
+            border-bottom: 1px #bbbbbb dotted;
+            vertical-align: top;
+         }
+
+         div.ugprofiletable table td table td {
+            border: none;
+            border-bottom: none;
+            vertical-align: top;
+         }
+
+         div.ugprofiletable img {
+            border: none;
+         }
+
+         div.ugdatatable table th {
+            border: 1px #bbbbbb solid;
+            text-align: left;
+         }
+
+         div.ugdatatable table td {
+            border: 1px #bbbbbb dotted;
+            vertical-align: top;
+         }
+
+         ul {
+            list-style: square outside;
+         }
+
+         ol {
+            list-style: decimal outside;
+         }
+
+         h1 {
+            font-size: 2em;
+            line-height: 1em;
+            color: #404040;
+            padding: 10px 0 0 0;
+         }
+
+         h2 {
+            font-size: 1.5em;
+            line-height: 1em;
+            color: #404040;
+            margin-top: 2em;
+            border-bottom: 1px solid rgb( 221, 221, 221 );
+         }
+
+         h3 {
+            font-size: 1.3em;
+            line-height: 1em;
+            color: #404040;
+         }
+
+         h4 {
+            font-size: 1.2em;
+            line-height: 1em;
+            color: #404040;
+         }
+
+         h5 {
+            font-size: 1.2em;
+            line-height: 1em;
+            color: #404040;
+         }i
+
+         h6 {
+            font-size: 1.2em;
+            line-height: 1em;
+            color: #404040;
+         }
+
+         hr {
+            display: block;
+            background: #aaa;
+            color: #aaa;
+            width: 100%;
+            height: 1px;
+            border: none
+         }
+
+         sup {
+            vertical-align: super
+         }
+
+         sub {
+            vertical-align: sub
+         }
+
+         a {
+            color: #7b9d1e;
+            text-decoration: none;
+         }
+
+         a:hover {
+            text-decoration: underline;
+            color: #898989;
+         }
+
+         a, a img, table {
+            border: none
+         }
+
+         img {
+            border: 1px solid;
+            border-color: gray;
+         }
+
+         body {
+            text-align: center;
+            color:#636363;
+         }
+
+         .headercontainer {
+            clear:both;
+            display:block;
+            position:relative;
+            margin:0px auto;
+            max-width: 900px;
+         /*background: white;*/
+         /*color: #535353;*/
+            text-align: left;
+            width:expression(document.body.clientWidth > 900 ? "900px" : "auto");
+         }
+
+         .bodycontainer {
+            clear:both;
+            display:block;
+            position:relative;
+            margin:0px auto;
+            max-width: 900px;
+         /*background: white;*/
+         /*color: #535353;*/
+            text-align: left;
+            width:expression(document.body.clientWidth > 900 ? "900px" : "auto");
+         }
+
+         .code {
+            margin: 1em 0em 1em 0em;
+            padding: 0.5em 1em 0.5em 10px;
+            background-color: #eeeeee;
+            border: 1px #bbbbbb dotted;
+            border-left: 0;
+            border-right: 0;
+         }
+
+         .note {
+            margin: 1em 0em 1em 0em;
+            padding: 1em 1em 1em 40px;
+            color: white;
+            background-image: url( ../../images/note_pinned.png );
+            background-color: rgb(142, 159, 0);
+            background-repeat: no-repeat;
+            background-position: center left;
+         }
+
+         .note a {
+            color: white;
+            text-decoration: underline;
+         }
+
+         .note a:hover {
+            color: white;
+            text-decoration: underline;
+         }
+
+         .note b {
+            color: inherit;
+         }
+
+         .eap {
+            margin: 1em 0em 1em 0em;
+            padding: 1em 3em 1em 3em;
+            color: white;
+            background-color: rgb(142, 109, 0);
+            background-repeat: no-repeat;
+            background-position: center left;
+         }
+
+      </style>
+   </head>
+
+   <body>
+      <div class="headercontainer">
+         <table cellspacing="2" cellpadding="2" width="100%" border="0">
+            <tbody>
+               <tr>
+                  <td width="100%">
+                     <h1>DbVisualizer Users Guide</h1>
+                  </td>
+                  <td valign="middle" align="center" width="200">
+                     <a href="http://www.dbvis.com"><img border="0" width="200" height="51" alt="DbVis Software"
+                        src="./images/DbVis_logo_small.jpg"></a>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="100%">
+                     <big>DbVisualizer 8.0</big>
+                  </td>
+                  <td width="250" align="center" valign="top">
+                     <a href="http://www.dbvis.com">http://www.dbvis.com</a><br>
+                     <a href="mailto:support@dbvis.com">support@dbvis.com</a><br>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <hr size="2" width="100%"><br>
+
+         <!--<p class="eap">-->
+            <!--This is a working copy of the users guide for the EARLY ACCESS version for DbVisualizer.-->
+            <!--<br>-->
+            <!--The following is yet to be updated:-->
+            <!--<br>-->
+            <!--<b>-->
+               <!--- Screenshots<br>-->
+               <!--- Database Profile Framework section is not updated-->
+            <!--</b>-->
+         <!--</p>-->
+         <!--<br>-->
+
+         
+      </div>
+ 
+<div class="bodycontainer">
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td colspan="2"> <b>(The users guide is located on the DbVisualizer web.<br></b> Click <a href='http://www.dbvis.com/products/dbvis/doc/8.0/doc.zip'>here</a> to download it locally. Unzip the archive in the DbVisualizer installation directory and replace all current files in the <b>doc</b> directory).<br></td>
+    </tr>
+    <tr>
+      <td valign="top"><span style="font-weight: bold;">Master Index:</span>
+      <ul>
+        <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/gettingStarted/gettingStarted.html">Getting
+Started
+and
+General
+Overview</a></li>
+        <li><span style="font-weight: bold;">Connection Management</span>
+        </li>
+        <ul>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/installDriver/installDriver.html">Installing
+a
+JDBC Driver</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/getConnected/getConnected.html">Setting
+up a
+Database Connection</a></li>
+        </ul>
+        <li><span style="font-weight: bold;">Database Object Management</span>
+        </li>
+        <ul>
+          <li><a
+ href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseExplorer/databaseExplorer.html">Database
+Browser</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/tableDesigner/tableDesigner.html">Create
+and
+Alter
+Table</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/procEditor/procEditor.html">Procedure
+Editor</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/exportImport/exportImport.html">Export
+Schema/Database</a></li>
+        </ul>
+        <li><span style="font-weight: bold;">Table Data Management</span>
+        </li>
+        <ul>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/editData/editData.html">Table
+Data
+Editor</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/exportImport/exportImport.html">Table
+Data Export</a></li>
+          <li><a
+ href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/exportImport/exportImport.html#mozTocId708449">Table
+Data
+Import</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/navigator/navigator.html">Data
+Navigator</a></li>
+        </ul>
+        <li><span style="font-weight: bold;">SQL Tools</span></li>
+        <ul>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/sqlCommander/sqlCommander.html">SQL
+Commander</a> </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/sqlEditor/sqlEditor.html">SQL
+Editor</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/queryBuilder/queryBuilder.html">Query
+Builder</a></li>
+          <li><a
+ href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/sqlCommander/sqlCommander.html#mozTocId979712">Explain
+Plan</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/bookmarks/bookmarks.html">SQL
+History</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/bookmarks/bookmarks.html">SQL
+Bookmarks</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/useCharts/useCharts.html">Charts</a>
+          </li>
+        </ul>
+        <li><span style="font-weight: bold;">Tools and Features</span> </li>
+        <ul>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/toolProps/toolProps.html">Tool
+Properties</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/favorites/favorites.html">Favorites</a>
+          </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/monitor/monitor.html">Monitor</a> </li>
+        </ul>
+        <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/cmdLine/cmdLine.html">Command
+Line
+Interface</a></li>
+        <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseProfile/databaseProfile.html">Database
+Profile
+Framework</a></li>
+      </ul>
+      <ul>
+        <li><span style="font-weight: bold;">Generic Database
+Support</span></li>
+        <ul>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/generic.html">Generic</a>
+          </li>
+        </ul>
+        <li><span style="font-weight: bold;">Database Specific Support</span>
+        </li>
+        <ul>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/db2.html">DB2
+LUW
+(Linux/UNIX/Windows)</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/db2-zos.html">DB2
+z/OS</a> </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/h2.html">H2</a></li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/neoview.html">HP
+Neoview</a> </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/informix.html">Informix
+IDS</a> </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/derby.html">JavaDB/Derby</a>
+          </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/mimer.html">Mimer SQL</a>
+          </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/mysql.html">MySQL</a>
+          </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/oracle.html">Oracle</a>
+          </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/postgresql.html">PostgreSQL</a>
+          </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/sqlite.html">SQLite</a>
+          </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/sqlserver.html">SQL
+Server</a> </li>
+          <li><a href="http://www.dbvis.com/products/dbvis/doc/8.0/doc/ug/databaseSpecific/sybase-ase.html">Sybase
+ASE</a> </li>
+        </ul>
+      </ul>
+      </td>
+      <td valign="top"><span style="font-weight: bold;">Related links:</span>
+      <ul>
+        <li><a href="license.html">End-User License Agreement</a></li>
+        <li><a href="credits.html">Credits</a></li>
+        <li><a href="http://www.dbvis.com/support">Support Information</a>
+(web site) </li>
+      </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+ <!--@@ @@DOC-BODY-END@@ @@-->  <br> 
+<hr> 
+<div style="text-align: center;"> 
+Copyright &copy; 2011 DbVis Software AB. All rights reserved. 
+</div>  </div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.pojo.Student" table="t_student">
+		<id name="stuid" type="int" column="id">
+			<generator class="sequence">
+				<param name="seq_student"></param>
+			</generator>
+		</id>
+		<!-- 映射多对一关系 name="clazz" 对应的是实体的引用名 -->
+		<many-to-one name="clazz" class="com.pojo.Clazz">
+			<column name="cid"></column><!-- 指定表的外键列名 -->
+		</many-to-one>
+
+		<property name="stuname" column="stuname"></property>
+		<property name="age" type="int" column="age"></property>
+		<property name="brithday" type="java.sql.Date" column="brithday"></property>
+	</class>
+</hibernate-mapping>

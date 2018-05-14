@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>jQuery基本过滤选择器示例</title>
+<script src="js/jquery-1.8.3.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	 $("h2").click(function(){
+		//$("li:first").css("background-color","#09F");//改变第1个<li>元素的背景颜色
+		// $("li:last").css("background-color","#09F");//改变最后一个<li>元素的背景颜色
+		
+		 //$("li:even").css("background-color","#09F");//改变索引值为偶数的<li>元素的背景颜色
+		  //$("li:odd").css("background-color","#09F");//改变索引值为奇数的<li>元素的背景颜色
+		//$("li:eq(1)").css("background-color","#09F");//改变索引值等于1的<li>元素的背景颜色
+		 //$("li:gt(1)").css("background-color","#09F");//改变索引值大于1的<li>元素的背景颜色
+		 //$("li:lt(1)").css("background-color","#09F");//改变索引值小于1的<li>元素的背景颜色
+		  
+		 // $("li:not(.three)").css("background-color","#09F");//改变class不为three的<li>元素的背景颜色
+
+		 // $(":header").css("background-color","#09F");//改变所有标题元素，例如<h1>,<h2>,<h3>……这些元素的背景颜色
+		  $(":focus").css("background-color","#09F")*/;//改变当前获取焦点的元素的背景颜色
+	 });
+});
+</script>
+</head>
+<body>
+
+<h2>网络小说</h2>
+
+<ul>
+  <li>王妃不好当</li>
+  <li>致命交易</li>
+  <li class="three">迦兰寺</li>
+  <li>逆天之宠</li>
+  <li>交错时光的爱恋</li>
+  <li>张震鬼故事</li>
+  <li>第一次亲密接触</li>
+</ul>
+
+
+</body>
+</html>

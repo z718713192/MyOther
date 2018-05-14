@@ -1,0 +1,31 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>jQuery-6 </title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <script type="text/javaScript" src="js/jquery-1.8.3.js"></script>
+	<script type="text/javaScript">
+		<!-- 
+			
+
+			$(function(){
+				var $input=$("input");
+				$input.click(function(){ 
+					 var input=$input[0];
+					 if(input.checked==true){
+						 alert("操作成功，感谢您的使用！！"); 
+					 }
+				}) 
+			})
+			
+		-->
+	</script>
+ </head>
+	<input id="main" type="checkbox" />接受服务条款
+ <body>
+  
+ </body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>next()方法使用的效果</title>
+<style type="text/css">
+li {line-height:22px;}
+</style>
+
+<!--引入jQuery文件-->
+<script src="js/jquery-1.8.3.js" type="text/javascript"></script>
+<script type="text/javascript">
+   $(function(){
+    $(".items_1").next().css("font-weight","blod");
+   });
+</script>
+</head>
+<body>
+	<ul>
+	  <li class="items_0">数码产品</li>
+	  <li class="items_1">家用电器</li>
+	  <li class="items_2">妇幼保健</li>
+	  <li class="items_3">时尚丽人</li>
+	</ul>
+</body>
+</html>

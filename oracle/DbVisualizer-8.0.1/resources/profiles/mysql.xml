@@ -1,0 +1,1439 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE DatabaseProfile SYSTEM "dbvis-defs.dtd" [
+   <!ENTITY generic-commands SYSTEM "generic-commands.xml">
+   <!ENTITY generic-view SYSTEM "generic-view.xml">
+   ]>
+
+<!--
+   Copyright (c) DbVis Software AB. All Rights Reserved.
+-->
+
+<DatabaseProfile
+   desc="Profile for MySQL"
+   version="$Revision: 13243 $"
+   date="$Date: 2011-04-14 11:27:45 +0200 (Thu, 14 Apr 2011) $"
+   minver="7.1">
+
+   <!-- 
+    Profile Notes
+    =============
+      2006-11-01:
+        - Don't run "SHOW TABLE STATUS FOR xxx" when getting result set
+          that will be presented in the tree for MySQL 4 and older. Read more
+          in: http://www.minq.se/forum/thread.jspa?threadID=1744
+
+    Change Log
+    ==========
+      2007-09-11:
+        - Now show Columns and Indexes as child objects for Table objects
+      2006-09-18:
+        - Added "Empty Table" action for table nodes
+      2006-08-18:
+        - "Databases" node now display all databases in grid view
+      2006-08-16:
+        - Now possible to Create Function and Create Procedure
+   -->
+
+   <!-- =================================================================== -->
+   <!-- Definition of the commands -->
+   <!-- =================================================================== -->
+
+   <Commands>
+
+      &generic-commands;
+
+      <!--
+        The "getTableNamesFor" command is used by Database getTableNamesFor().
+        It must return table names for the catalog and schema named by
+        the ${table_catalog} and ${table_catalog} variables in the first
+        column.
+      -->
+      <Command id="mysql.getTableNamesFor">
+        <SQL>
+        <![CDATA[
+SHOW TABLES FROM `${table_catalog}`
+            ]]>
+        </SQL>
+      </Command>
+
+      <!--
+        The "getColumnNamesFor" command is used by Database getColumnNamesFor().
+        It must return column names for the catalog, schema and table named by
+        the ${table_catalog}, ${table_catalog} and ${table_name} variables in
+        the first column.
+      -->
+      <Command id="mysql.getColumnNamesFor">
+        <SQL>
+          <![CDATA[
+SHOW COLUMNS FROM `${table_catalog}`.`${table_name}`
+            ]]>
+        </SQL>   
+      </Command>
+
+      <!-- =================================================================== -->
+      <!-- Here follows all <Command>'s -->
+      <!-- =================================================================== -->
+
+      <!--
+	     Special replacement for the generic getCatalogs. This returns one
+	     record with the default database only. This is useful if "show databases"
+	     is disabled. Set the driver property DBNAME = <database> to make this
+	     work. Read more in: http://www.dbvis.com/forum/thread.jspa?threadID=2676
+      -->
+      <Command id="mysql.getSingleDatabase">
+        <SQL>
+          <![CDATA[
+select "${#dp.SINGLE_DBNAME}"
+            ]]>
+        </SQL>
+      </Command>
+
+      <Command id="mysql.getColumns">
+         <SQL>
+            <![CDATA[
+SHOW FULL COLUMNS FROM `${catalog}`.`${table}`
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getTables">
+         <If test="#dm.getDatabaseMajorVersion() gte 5">
+            <SQL>
+               <![CDATA[
+SELECT
+    TABLE_NAME,
+    TABLE_TYPE,
+    ENGINE,
+    VERSION,
+    ROW_FORMAT,
+    TABLE_ROWS,
+    AVG_ROW_LENGTH,
+    DATA_LENGTH,
+    MAX_DATA_LENGTH,
+    INDEX_LENGTH,
+    DATA_FREE,
+    AUTO_INCREMENT,
+    CREATE_TIME,
+    UPDATE_TIME,
+    CHECK_TIME,
+    TABLE_COLLATION,
+    CHECKSUM,
+    CREATE_OPTIONS
+FROM
+    information_schema.tables
+WHERE
+    table_schema = '${catalog}'
+    and table_type ${type}
+ORDER BY
+    TABLE_NAME
+               ]]>
+            </SQL>
+         </If>
+         <Else>
+            <SQL>
+               <![CDATA[
+show tables from `${catalog}`
+               ]]>
+            </SQL>
+         </Else>
+      </Command>
+
+      <Command id="mysql.getTableNames">
+         <If test="#dm.getDatabaseMajorVersion() gte 5">
+            <SQL>
+               <![CDATA[
+SHOW FULL TABLES FROM `${catalog}` WHERE `table_type` ${type}
+               ]]>
+            </SQL>
+         </If>
+         <Else>
+            <SQL>
+               <![CDATA[
+show tables from `${catalog}`
+               ]]>
+            </SQL>
+         </Else>
+      </Command>
+
+      <Command id="mysql.getTable">
+         <SQL>
+            <![CDATA[
+show table status from `${catalog}` like '${table}'
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getCreateObject">
+         <SQL>
+            <![CDATA[
+show create ${type} `${catalog}`.`${name}`
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getProcedures">
+         <SQL>
+            <![CDATA[
+select * from information_schema.routines
+where routine_schema = '${catalog}'
+and routine_name like '${name}'
+and routine_type like '${type}'
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getTriggers">
+         <SQL>
+            <![CDATA[
+select *, concat(
+'create trigger ', event_object_schema, '.', trigger_name, char(10),
+action_timing, ' ', event_manipulation,' on ', char(10),
+event_object_schema, '.', event_object_table, char(10),
+'for each row ', action_statement) 'DDL'
+from information_schema.triggers
+where trigger_schema = '${catalog}'
+and trigger_name like '${name}'
+and event_object_table like '${type}'
+            ]]>
+         </SQL>
+      </Command>
+
+      <!-- ================================================================= -->
+      <!-- DBA related commands requiring certain privileges in the database -->
+      <!-- ================================================================= -->
+
+      <Command id="mysql.getUsers">
+         <SQL>
+            <!-- UTF8 support was added in MySQL 4.1 -->
+            <If test="(#dm.getDatabaseMajorVersion() eq 4 and
+                       #dm.getDatabaseMinorVersion() gte 1) or
+                       #dm.getDatabaseMajorVersion() gte 5">
+               <![CDATA[
+select CONCAT("'", User, "'", _utf8'@', "'", Host, "'") as UserName, mysql.user.*
+from mysql.user where user != '' order by UserName
+                ]]>
+            </If>
+            <Else>
+               <![CDATA[
+select CONCAT("'", User, "'@'", Host, "'") as UserName, mysql.user.*
+from mysql.user where user != '' order by UserName
+               ]]>
+            </Else>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getUser">
+         <SQL>
+            <![CDATA[
+show grants for ${user}
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getProcessList">
+         <SQL>
+            <![CDATA[
+show processlist
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getStatus">
+         <SQL>
+            <![CDATA[
+show status
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getVariables">
+         <SQL>
+            <![CDATA[
+show variables
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getTableEngines">
+         <SQL>
+            <![CDATA[
+show engines
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getErrors">
+         <SQL>
+            <![CDATA[
+show errors
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getPrivileges">
+         <SQL>
+            <![CDATA[
+show privileges
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="mysql.getTableDDL">
+         <SQL>
+            <![CDATA[
+show create table
+            ]]>
+         </SQL>
+      </Command>
+
+   </Commands>
+
+   <!-- =================================================================== -->
+   <!-- Definition of the object actions that are used by the tree and views -->
+   <!-- =================================================================== -->
+
+   <ObjectsActionDef>
+
+      <ActionGroup type="Databases">
+         <Action id="mysql-databases-create" label="Create Database" reload="true"
+                 resetcatalogs="true" icon="add">
+            <Input label="Database Name" name="newCatalog" style="text" editable="true"/>
+            <Command>
+               <SQL><![CDATA[create database `${newCatalog}`]]></SQL>
+            </Command>
+            <Confirm>
+               Create database ${newCatalog}?
+            </Confirm>
+            <Result>
+               Database ${newCatalog} created!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Catalog">
+         <Action id="mysql-catalog-drop" label="Drop Database" reload="true"
+                 resetcatalogs="true" icon="remove">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop database `${catalog}`]]></SQL></Command>
+            <Confirm>
+               <![CDATA[
+                 Really drop database ${catalog}?<br>
+                 (All data will be lost!)
+               ]]>
+            </Confirm>
+            <Result>
+               Database ${catalog} dropped!
+            </Result>
+         </Action>
+         <Action id="mysql-schema-export" label="Export Database"
+                 icon="export" reload="false"
+                 class="schemaExport"
+                 doclink="../exportImport/exportImport.html#mozTocId816546"/>
+      </ActionGroup>
+
+      <ActionGroup type="Tables">
+         <Action id="mysql-tables-create-table" label="Create Table"
+                 icon="add" reload="true"
+                 class="tableCreateOrAlter"
+                 classargs="create"
+                 doclink="../tableDesigner/tableDesigner.html#mozTocId786186"/>
+         <Action id="mysql-new-table-import-data"
+                 label="Import Table Data"
+                 icon="import"
+                 class="tableDataImport"
+                 doclink="../exportImport/exportImport.html#mozTocId708449"/>
+      </ActionGroup>
+
+      <ActionGroup type="Table">
+         <Action id="mysql-tables-alter-table" label="Alter Table"
+                 icon="edit" reload="true"
+                 class="tableCreateOrAlter"
+                 classargs="alter"
+                 doclink="../tableDesigner/tableDesigner.html#mozTocId740254"/>
+
+         <Action id="mysql-table-rename" label="Rename Table" reload="true" icon="rename">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="New Database" name="newCatalog" style="list">
+               <Values>
+                  <Command><SQL><![CDATA[show databases]]></SQL></Command>
+               </Values>
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="New Table Name" name="newTable" style="text"/>
+            <Command>
+               <SQL><![CDATA[rename table `${catalog}`.`${objectname}` to `${newCatalog}`.`${newTable}`]]></SQL>
+            </Command>
+            <Confirm>
+               Confirm rename of ${catalog}.${objectname} to ${newCatalog}.${newTable}?
+            </Confirm>
+            <Result>
+               Table ${catalog}.${objectname} renamed to ${newCatalog}.${newTable}!
+            </Result>
+         </Action>
+
+         <Action id="mysql-table-clear" label="Empty Table" reload="true">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Use Command" name="useCommand" style="radio">
+               <Values>TRUNCATE|DELETE</Values>
+               <Default>TRUNCATE</Default>
+            </Input>
+
+            <SetVar name="_command" value="#useCommand.equals('TRUNCATE') ? 'truncate table' : 'delete from'"/>
+
+            <Command>
+               <SQL><![CDATA[${_command} `${catalog}`.`${objectname}`]]></SQL>
+            </Command>
+            <Confirm>
+               Really remove all rows in table ${catalog}.${objectname}?
+            </Confirm>
+            <Result>
+               All rows in table ${catalog}.${objectname} has been removed!
+            </Result>
+         </Action>
+
+         <Action id="mysql-table-drop" label="Drop Table" reload="true" icon="remove">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop table `${catalog}`.`${objectname}`]]></SQL></Command>
+            <Confirm>
+               Really drop table ${catalog}.${objectname}?
+            </Confirm>
+            <Result>
+               Table ${catalog}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Action id="mysql-table-import-data" label="Import Table Data" icon="import"
+                 class="tableDataImport"
+                 doclink="../exportImport/exportImport.html#mozTocId708449"/>
+
+         <Action id="mysql-table-export" label="Export Table" icon="export"
+                 class="tableExport"
+                 doclink="../exportImport/exportImport.html#mozTocId584466"/>
+            
+         <Separator/>
+
+         <Action id="mysql-table-create-index" label="Create Index" reload="true">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Index Name" name="indexname" style="text"/>
+            <Input label="Index Type" name="indextype" style="radio">
+               <Labels>Unique|Fulltext|Default</Labels>
+               <Values>unique|fulltext|</Values>
+               <Default>unique</Default>
+            </Input>
+            <SetVar name="_indextype" value='#indextype.equals("") ? "" : " " + #indextype'/>
+
+            <Input label="Columns" style="separator"/>
+
+            <Input name="columns" style="grid">
+               <Arg name="output" value="`${columnname}`${_sortorder}"/>
+               <Arg name="newline" value=", "/>
+
+               <Input name="columnname" label="Column Name" style="list">
+                  <Values column="4">
+                     <Command idref="getColumnNamesFor">
+                        <Input name="table_catalog" value="${catalog}"/>
+                        <Input name="table_schema" value="${schema}"/>
+                        <Input name="table_name" value="${objectname}"/>
+                     </Command>
+                  </Values>
+                  <Default>${0}</Default>
+               </Input>
+               <Input name="sortorder" label="Sort Order" style="radio">
+                  <Labels>ASC|DESC|Default</Labels>
+                  <Values>ASC|DESC|</Values>
+                  <Default>ASC</Default>
+               </Input>
+               <SetVar name="_sortorder" value='#sortorder.equals("") ? "" : " " + #sortorder'/>
+            </Input>
+
+            <SetVar name="_columns" value='#columns.trim().equals("") ? "" : "(" + #columns + ")"'/>
+            <SetVar name="_indexname" value='#indexname.trim().equals("") ? "" : " `" + #indexname + "`"'/>
+
+            <Command>
+               <SQL>
+                  <![CDATA[create${_indextype} index${_indexname} on `${catalog}`.`${objectname}` ${_columns}]]>
+               </SQL>
+            </Command>
+            <Confirm>
+               <![CDATA[Create index "${indexname}"?]]>
+            </Confirm>
+            <Result>
+               <![CDATA[Index "${indexname}" created!]]>
+            </Result>
+         </Action>
+         
+         <Action id="mysql-tabletrigger-create" label="Create Trigger" icon="add" reload="true"
+                 doclink="../procEditor/procEditor.html">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Trigger" name="triggerName" style="text"/>
+            <Input label="Trigger Time" name="triggerTime" style="radio">
+               <Values>BEFORE|AFTER</Values>
+               <Default>AFTER</Default>
+            </Input>
+            <Input label="Trigger Event" name="triggerEvent" style="radio">
+               <Values>DELETE|INSERT|UPDATE</Values>
+               <Default>INSERT</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Source" style="separator"/>
+            <Input name="source" style="text-editor">
+               <Default><![CDATA[
+--
+--  Insert your own trigger code here
+--
+    insert into anotherTable (col1, col2) values(val1, val2);]]>
+               </Default>
+            </Input>
+
+            <Command parsesql="false">
+               <SQL><![CDATA[
+create trigger `${catalog}`.`${triggerName}`
+  ${triggerTime} ${triggerEvent}
+  on `${catalog}`.`${objectname}`
+  for each row begin
+${source}
+end;]]>
+               </SQL>
+            </Command>
+            <Result>
+               <![CDATA[Trigger <b>${catalog}.${triggerName}</b> created.]]>
+            </Result>
+         </Action>
+
+         <Separator/>
+
+         <ActionGroup label="Script Object to SQL Editor">
+            <Action id="mysql-table-script-select" label="SELECT" icon="selectFrom"
+                    class="sqlBuilder"
+                    classargs="select"/>
+            <Action id="mysql-table-script-insert" label="INSERT" icon="insertRow"
+                    class="sqlBuilder"
+                    classargs="insert"/>
+            <Action id="mysql-table-script-update" label="UPDATE" icon="updateRow"
+                    class="sqlBuilder"
+                    classargs="update"/>
+            <Action id="mysql-table-script-delete" label="DELETE" icon="deleteWhere"
+                    class="sqlBuilder"
+                    classargs="delete"/>
+
+            <Separator/>
+
+            <Action id="mysql-table-script-create" label="CREATE TABLE" icon="createTable"
+                    class="ddlGenerator"
+                    classargs="createTable"/>
+         </ActionGroup>
+
+         <ActionGroup label="Script Object to New SQL Editor">
+            <Action id="mysql-table-script-select-new" label="SELECT" icon="selectFrom"
+                    class="sqlBuilder"
+                    classargs="select,newEditor"/>
+            <Action id="mysql-table-script-insert-new" label="INSERT" icon="insertRow"
+                    class="sqlBuilder"
+                    classargs="insert,newEditor"/>
+            <Action id="mysql-table-script-update-new" label="UPDATE" icon="updateRow"
+                    class="sqlBuilder"
+                    classargs="update,newEditor"/>
+            <Action id="mysql-table-script-delete-new" label="DELETE" icon="deleteWhere"
+                    class="sqlBuilder"
+                    classargs="delete,newEditor"/>
+
+            <Separator/>
+
+            <Action id="mysql-table-script-create-new" label="CREATE TABLE" icon="createTable"
+                    class="ddlGenerator"
+                    classargs="createTable,newEditor"/>
+         </ActionGroup>
+      </ActionGroup>
+
+      <ActionGroup type="View">
+         <Action id="mysql-view-drop" label="Drop View" reload="true" icon="remove">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="View" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop view `${catalog}`.`${objectname}`]]></SQL></Command>
+            <Confirm>
+               Really drop view ${catalog}.${objectname}?
+            </Confirm>
+            <Result>
+               View ${catalog}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Action id="mysql-view-rename" label="Rename View" reload="true" icon="rename">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="View" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="New View Name" name="newTable" style="text"/>
+            <Command>
+               <SQL><![CDATA[rename table `${catalog}`.`${objectname}` to `${newTable}`]]></SQL>
+            </Command>
+            <Confirm>
+               Confirm rename of ${catalog}.${objectname} to ${catalog}.${newTable}?
+            </Confirm>
+            <Result>
+               View ${catalog}.${objectname} renamed to ${catalog}.${newTable}!
+            </Result>
+         </Action>
+
+         <Action id="mysql-view-export" label="Export View" icon="export"
+                 class="viewExport"
+                 doclink="../exportImport/exportImport.html#mozTocId584466"/>
+
+         <Separator/>
+
+         <ActionGroup label="Script Object to SQL Editor">
+            <Action id="mysql-view-script-select" label="SELECT" icon="selectFrom"
+                    class="sqlBuilder"
+                    classargs="select"/>
+            <Action id="mysql-view-script-insert" label="INSERT" icon="insertRow"
+                    class="sqlBuilder"
+                    classargs="insert"/>
+            <Action id="mysql-view-script-update" label="UPDATE" icon="updateRow"
+                    class="sqlBuilder"
+                    classargs="update"/>
+            <Action id="mysql-view-script-delete" label="DELETE" icon="deleteWhere"
+                    class="sqlBuilder"
+                    classargs="delete"/>
+
+            <Separator/>
+
+            <If test="#dm.getDatabaseMajorVersion() gte 5">
+               <Action id="mysql-view-script-create" label="CREATE VIEW" icon="createTable"
+                       class="ddlGenerator"
+                       classargs="createView"/>
+            </If>
+         </ActionGroup>
+
+         <ActionGroup label="Script Object to New SQL Editor">
+            <Action id="mysql-view-script-select-new" label="SELECT" icon="selectFrom"
+                    class="sqlBuilder"
+                    classargs="select,newEditor"/>
+            <Action id="mysql-view-script-insert-new" label="INSERT" icon="insertRow"
+                    class="sqlBuilder"
+                    classargs="insert,newEditor"/>
+            <Action id="mysql-view-script-update-new" label="UPDATE" icon="updateRow"
+                    class="sqlBuilder"
+                    classargs="update,newEditor"/>
+            <Action id="mysql-view-script-delete-new" label="DELETE" icon="deleteWhere"
+                    class="sqlBuilder"
+                    classargs="delete,newEditor"/>
+
+            <Separator/>
+
+            <If test="#dm.getDatabaseMajorVersion() gte 5">
+               <Action id="mysql-view-script-create-new" label="CREATE VIEW" icon="createTable"
+                       class="ddlGenerator"
+                       classargs="createView,newEditor"/>
+            </If>
+         </ActionGroup>
+      </ActionGroup>
+
+      <ActionGroup type="Index">
+         <Action id="mysql-index-drop" label="Drop Index" reload="true" icon="remove">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Index" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop index `${objectname}` on `${theTableName}`]]></SQL></Command>
+            <Confirm>
+               Really drop index ${catalog}.${objectname}?
+            </Confirm>
+            <Result>
+               Index ${catalog}.${objectname} dropped!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Procedures">
+         <Action id="mysql-procedures-create" label="Create Procedure" reload="true" icon="add"
+                 doclink="../procEditor/procEditor.html">
+            <Input label="Procedure Name" name="procedureName" style="text"/>
+
+            <Input label="Parameters" style="separator"/>
+
+            <Input label="Deterministic" name="deterministic" style="radio">
+              <Values>NOT DETERMINISTIC|DETERMINISTIC</Values>
+              <Default>NOT DETERMINISTIC</Default>
+            </Input>
+            <Input label="Access Option" name="option" style="list">
+              <Values>CONTAINS SQL|READS SQL DATA|MODIFIES SQL DATA|NO SQL</Values>
+              <Default>READS SQL DATA</Default>
+            </Input>
+            <Input name="parameters" style="grid">
+               <Arg name="output" value="${direction} ${name} ${type}"/>
+               <Arg name="newline" value=", "/>
+
+               <Input name="name" label="Name" style="text">
+                  <Default>parm</Default>
+               </Input>
+               <Input name="direction" label="Direction" style="list">
+                  <Values>IN|INOUT|OUT</Values>
+                  <Default>IN</Default>
+               </Input>
+               <Input name="type" label="Type" style="text">
+                  <Default>VARCHAR(20)</Default>
+               </Input>
+            </Input>
+
+            <SetVar name="_parameters" value='#parameters.trim().equals("") ? "()" : "(" + #parameters + ")"'/>
+<!--
+            <Input label="Source" style="separator"/>
+            <Input name="source" style="text-editor">
+
+               <Default>
+                  <![CDATA[
+BEGIN
+  DECLARE v CHAR(10) DEFAULT 'Hello';
+  SELECT CONCAT(v, ', ', current_user, '!');
+END;
+                  ]]>
+               </Default>
+            </Input>
+-->
+            <Command parsesql="false">
+               <SQL>
+                  <![CDATA[
+CREATE PROCEDURE ${procedureName}
+${_parameters}
+${deterministic}
+${option}
+BEGIN
+  DECLARE v CHAR(10) DEFAULT 'Hello';
+  SELECT CONCAT(v, ', ', current_user, '!');
+END;
+                  ]]>
+               </SQL>
+            </Command>
+            <Confirm>
+               Create procedure ${procedureName}?
+            </Confirm>
+            <Result>
+               Procedure ${procedureName} created!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Procedure">
+         <Action id="mysql-procedure-drop" label="Drop Procedure" reload="true" icon="remove">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Procedure" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop procedure `${catalog}`.`${objectname}`]]></SQL></Command>
+            <Confirm>
+               Really drop procedure ${catalog}.${objectname}?
+            </Confirm>
+            <Result>
+               Procedure ${catalog}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Action id="mysql-procedure-export" label="Export Procedure" icon="export"
+                 class="procedureExport"
+                 doclink="../exportImport/exportImport.html#mozTocId584466"/>
+
+         <Separator/>
+
+         <ActionGroup label="Script Object to SQL Editor">
+            <Action id="mysql-procedure-call" label="CALL" icon="execute"
+                    class="sqlBuilder"
+                    classargs="call,procedure"/>
+         </ActionGroup>
+
+         <ActionGroup label="Script Object to New SQL Editor">
+            <Action id="mysql-procedure-call-new" label="CALL" icon="execute"
+                    class="sqlBuilder"
+                    classargs="call,procedure,newEditor"/>
+         </ActionGroup>
+      </ActionGroup>
+
+      <ActionGroup type="Functions">
+         <Action id="mysql-functions-create" label="Create Function" reload="true" icon="add"
+                 doclink="../procEditor/procEditor.html">
+            <Input label="Function Name" name="functionName" style="text"/>
+            <Input label="Return Data Type" name="returns" style="text">
+               <Default>VARCHAR(20)</Default>
+            </Input>
+
+            <Input label="Deterministic" name="deterministic" style="radio">
+              <Values>NOT DETERMINISTIC|DETERMINISTIC</Values>
+              <Default>NOT DETERMINISTIC</Default>
+            </Input>
+            <Input label="Access Option" name="option" style="list">
+              <Values>CONTAINS SQL|READS SQL DATA|MODIFIES SQL DATA|NO SQL</Values>
+              <Default>READS SQL DATA</Default>
+            </Input>
+            <Input label="Parameters" style="separator"/>
+
+            <Input name="parameters" style="grid">
+               <Arg name="output" value="${name} ${type}"/>
+               <Arg name="newline" value=", "/>
+
+               <Input name="name" label="Name" style="text">
+                  <Default>parm</Default>
+               </Input>
+               <Input name="type" label="Type" style="text">
+                  <Default>VARCHAR(20)</Default>
+               </Input>
+            </Input>
+
+            <SetVar name="_parameters" value='#parameters.trim().equals("") ? "()" : "(" + #parameters + ")"'/>
+<!--
+            <Input label="Source" style="separator"/>
+            <Input name="source" style="text-editor">
+
+               <Default>
+                  <![CDATA[
+RETURN CONCAT('Hello, ', current_user, '!');
+                  ]]>
+               </Default>
+            </Input>
+-->
+            <Command parsesql="false">
+               <SQL>
+                  <![CDATA[
+CREATE FUNCTION ${functionName}
+${_parameters}
+RETURNS ${returns}
+${deterministic}
+${option}
+RETURN CONCAT('Hello, ', current_user, '!');
+                  ]]>
+               </SQL>
+            </Command>
+            <Confirm>
+               Create function ${functionName}?
+            </Confirm>
+            <Result>
+               Function ${functionName} created!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Function">
+         <Action id="mysql-function-drop" label="Drop Function" reload="true" icon="remove">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Function" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop function `${catalog}`.`${objectname}`]]></SQL></Command>
+            <Confirm>
+               Really drop function ${catalog}.${objectname}?
+            </Confirm>
+            <Result>
+               Function ${catalog}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Action id="mysql-function-export" label="Export Function" icon="export"
+                 class="functionExport"
+                 doclink="../exportImport/exportImport.html#mozTocId584466"/>
+
+         <Separator/>
+
+         <ActionGroup label="Script Object to SQL Editor">
+            <Action id="mysql-function-call" label="CALL" icon="execute"
+                    class="sqlBuilder"
+                    classargs="call,function"/>
+         </ActionGroup>
+
+         <ActionGroup label="Script Object to New SQL Editor">
+            <Action id="mysql-function-call-new" label="CALL" icon="execute"
+                    class="sqlBuilder"
+                    classargs="call,function,newEditor"/>
+         </ActionGroup>
+      </ActionGroup>
+
+      <ActionGroup type="Process">
+         <Action id="mysql-process-kill" label="Kill Session" reload="true" icon="remove">
+            <Command>
+               <SQL>
+                  <![CDATA[kill ${objectname}]]>
+               </SQL>
+            </Command>
+            <Confirm>
+               Do you really want to kill id ${objectname}
+               for user ${mysql.getProcessList.User}?
+            </Confirm>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Trigger">
+         <Action id="mysql-trigger-drop" label="Drop Trigger" reload="true" icon="remove">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Trigger" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop trigger `${catalog}`.`${objectname}`]]></SQL></Command>
+            <Confirm>
+               Really drop trigger ${catalog}.${objectname}?
+            </Confirm>
+            <Result>
+               Trigger ${catalog}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Action id="mysql-trigger-export" label="Export Trigger" icon="export"
+                 class="triggerExport"
+                 doclink="../exportImport/exportImport.html#mozTocId584466"/>
+
+      </ActionGroup>
+
+      <ActionGroup type="Users">
+         <Action id="mysql-user-create" label="Create User" reload="true" icon="add">
+            <Input label="User Name" name="userName" style="text">
+                <Default>'user'@'host'</Default>
+            </Input>
+            <Input label="Password" name="password" style="password"/>
+            <Command>
+              <SQL><![CDATA[create user ${userName} identified by '${password}']]></SQL>
+            </Command>
+            <Result>
+               <![CDATA[User <b>${userName}</b> created.]]>
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Login">
+         <Action id="mysql-user-drop" label="Drop User" reload="true" icon="remove">
+            <Input label="User Name" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command>
+              <SQL><![CDATA[drop user ${objectname}]]></SQL>
+            </Command>
+            <Result>
+               <![CDATA[User <b>${userName}</b> created.]]>
+            </Result>
+         </Action>
+      </ActionGroup>
+
+   </ObjectsActionDef>
+
+   <!-- =================================================================== -->
+   <!-- Definition of the database objects tree structure -->
+   <!-- =================================================================== -->
+
+   <ObjectsTreeDef id="mysql">
+
+      <GroupNode type="Databases" label="Databases">
+         <DataNode type="Catalog" label="${getCatalogs.TABLE_CAT}" is-empty-output="continue">
+            <SetVar name="catalog" value="${getCatalogs.TABLE_CAT}"/>
+
+            <If test="#dp.SINGLE_DBNAME eq null">
+               <Command idref="getCatalogs">
+                  <Filter type="Catalog" name="Database">
+                     <Column index="TABLE_CAT" name="Name"/>
+                  </Filter>
+               </Command>
+            </If>
+            <Else>
+               <Command idref="mysql.getSingleDatabase">
+                  <Output id="getCatalogs.TABLE_CAT" index="1"/>
+                  <Filter type="Catalog" name="Database">
+                     <Column index="TABLE_CAT" name="Name"/>
+                  </Filter>
+               </Command>
+            </Else>
+
+            <GroupNode type="Tables" label="Tables">
+               <DataNode type="Table" label="${mysql.getTableNames.TABLE_NAME}" sort="mysql.getTableNames.TABLE_NAME">
+                  <SetVar name="objectname" value="${mysql.getTableNames.TABLE_NAME}"/>
+                  <SetVar name="rowcount" value="true"/>
+                  <SetVar name="acceptInQB" value="true"/>
+                  <Command idref="mysql.getTableNames">
+                     <Input name="catalog" value="${catalog}"/>
+                     <Input name="type" value="NOT IN ('VIEW')"/>
+                     <Output id="mysql.getTableNames.TABLE_NAME" index="1"/>
+                     <Filter type="Table" name="Table">
+                        <Column index="1" name="Name"/>
+                     </Filter>
+                  </Command>
+
+                  <!-- Need to keep the objectname for the current table in
+                       a new variable so that the viewers will be able to pick up
+                       the correct input to display -->
+                  <SetVar name="theTableName" value="${objectname}"/>
+
+                  <GroupNode type="Columns" label="Columns">
+                     <DataNode type="Column" label="${getColumns.COLUMN_NAME}   (${getColumns.TYPE_NAME})" isLeaf="true">
+                        <SetVar name="objectname" value="${getColumns.COLUMN_NAME}"/>
+                        <Command idref="getColumns">
+                           <Input name="catalog" value="${catalog}"/>
+                           <Input name="objectname" value="${objectname}"/>
+                        </Command>
+                     </DataNode>
+                  </GroupNode>
+
+                  <GroupNode type="Indexes" label="Indexes">
+                     <DataNode type="Index" label="${getIndexes.INDEX_NAME}   (${getIndexes.ORDINAL_POSITION}: ${getIndexes.COLUMN_NAME})" isLeaf="true">
+                        <SetVar name="objectname" value="${getIndexes.INDEX_NAME}"/>
+                        <Command idref="getIndexes">
+                           <Input name="catalog" value="${catalog}"/>
+                           <Input name="objectname" value="${theTableName}"/>
+                           <Output modelaction="removeisnullrows" index="INDEX_NAME"/>
+                        </Command>
+                     </DataNode>
+                  </GroupNode>
+
+                  <GroupNode type="Triggers" label="Triggers">
+                     <DataNode type="Trigger" label="${mysql.getTriggers.TRIGGER_NAME}   (${mysql.getTriggers.EVENT_OBJECT_TABLE})" isLeaf="true">
+                        <SetVar name="objectname" value="${mysql.getTriggers.TRIGGER_NAME}"/>
+                        <Command idref="mysql.getTriggers">
+                           <Input name="catalog" value="${catalog}"/>
+                           <Input name="name" value="%"/>
+                           <Input name="type" value="${theTableName}"/>
+                        </Command>
+                     </DataNode>
+                  </GroupNode>
+               </DataNode>
+            </GroupNode>
+
+            <!-- Views, Procedures and Functions were added in MySQL 5 -->
+            <If test="#dm.getDatabaseMajorVersion() gte 5">
+               <GroupNode type="Views" label="Views">
+                  <DataNode type="View" label="${mysql.getTableNames.TABLE_NAME}" sort="mysql.getTableNames.TABLE_NAME" isLeaf="true">
+                     <SetVar name="objectname" value="${mysql.getTableNames.TABLE_NAME}"/>
+                     <SetVar name="rowcount" value="true"/>
+                     <SetVar name="acceptInQB" value="true"/>
+                     <Command idref="mysql.getTableNames">
+                        <Input name="catalog" value="${catalog}"/>
+                        <Input name="type" value="IN ('VIEW')"/>
+                        <Output id="mysql.getTableNames.TABLE_NAME" index="1"/>
+                        <Filter type="View" name="View">
+                           <Column index="1" name="Name"/>
+                        </Filter>
+                     </Command>
+                  </DataNode>
+               </GroupNode>
+               <GroupNode type="Procedures" label="Stored Procedures">
+                  <DataNode type="Procedure" label="${mysql.getProcedures.ROUTINE_NAME}" isLeaf="true">
+                     <SetVar name="objectname" value="${mysql.getProcedures.ROUTINE_NAME}"/>
+                     <Command idref="mysql.getProcedures">
+                        <Input name="catalog" value="${catalog}"/>
+                        <Input name="name" value="%"/>
+                        <Input name="type" value="PROCEDURE"/>
+                        <Filter type="Procedure" name="Procedure">
+                           <Column index="ROUTINE_NAME" name="Name"/>
+                        </Filter>
+                     </Command>
+                  </DataNode>
+               </GroupNode>
+               <GroupNode type="Functions" label="User Functions">
+                  <DataNode type="Function" label="${mysql.getProcedures.ROUTINE_NAME}" isLeaf="true">
+                     <SetVar name="objectname" value="${mysql.getProcedures.ROUTINE_NAME}"/>
+                     <Command idref="mysql.getProcedures">
+                        <Input name="catalog" value="${catalog}"/>
+                        <Input name="name" value="%"/>
+                        <Input name="type" value="FUNCTION"/>
+                        <Filter type="Function" name="Function">
+                           <Column index="ROUTINE_NAME" name="Name"/>
+                        </Filter>
+                     </Command>
+                  </DataNode>
+               </GroupNode>
+               <SetVar name="theTableName" value="%"/>
+               <GroupNode type="Triggers" label="Triggers">
+                  <DataNode type="Trigger" label="${mysql.getTriggers.TRIGGER_NAME}   (${mysql.getTriggers.EVENT_OBJECT_TABLE})" isLeaf="true">
+                     <SetVar name="objectname" value="${mysql.getTriggers.TRIGGER_NAME}"/>
+                     <Command idref="mysql.getTriggers">
+                        <Input name="catalog" value="${catalog}"/>
+                        <Input name="name" value="%"/>
+                        <Input name="type" value="%"/>
+                        <Filter type="Trigger" name="Trigger">
+                           <Column index="TRIGGER_NAME" name="Name"/>
+                        </Filter>
+                     </Command>
+                  </DataNode>
+               </GroupNode>
+            </If>
+
+         </DataNode>
+      </GroupNode>
+
+      <GroupNode type="DBA" label="DBA Views">
+         <GroupNode type="Users" label="Users">
+            <DataNode type="Login" label="${mysql.getUsers.UserName}" isLeaf="true">
+               <SetVar name="objectname" value="${mysql.getUsers.UserName}"/>
+               <Command idref="mysql.getUsers">
+                  <Output id="mysql.getUsers.UserName" index="1"/>
+               </Command>
+
+            </DataNode>
+         </GroupNode>
+         <If test="(#dm.getDatabaseMajorVersion() eq 4 and
+                    #dm.getDatabaseMinorVersion() gte 1) or
+                    #dm.getDatabaseMajorVersion() gte 5">
+
+            <GroupNode type="Roles" label="Roles" isLeaf="true"/>
+         </If>
+         <GroupNode type="Processes" label="Processes" isLeaf="false">
+            <DataNode type="Process" label="${mysql.getProcessList.User} (${mysql.getProcessList.Id}) ${mysql.getProcessList.db}" isLeaf="true">
+               <SetVar name="objectname" value="${mysql.getProcessList.Id}"/>
+               <Command idref="mysql.getProcessList"/>
+            </DataNode>
+         </GroupNode>
+         <GroupNode type="Status" label="Status" isLeaf="true"/>
+
+         <!-- Getting Table Engines was added in MySQL 4.1 -->
+         <If test="(#dm.getDatabaseMajorVersion() eq 4 and
+                    #dm.getDatabaseMinorVersion() gte 1) or
+                    #dm.getDatabaseMajorVersion() gte 5">
+            <GroupNode type="TableEngines" label="Table Engines" isLeaf="true"/>
+            <!-- Errors were added in MySQL 5 -->
+            <If test="#dm.getDatabaseMajorVersion() gte 5">
+               <GroupNode type="Errors" label="Errors" isLeaf="true"/>
+            </If>
+         </If>
+      </GroupNode>
+   </ObjectsTreeDef>
+
+   <!-- =================================================================== -->
+   <!-- Definition of the database objects views -->
+   <!-- =================================================================== -->
+
+   <!-- Include the generic-view -->
+
+   &generic-view;
+
+   <ObjectsViewDef id="mysql" extends="generic">
+      <ObjectView type="Databases">
+         <DataView type="Databases" label="Databases" viewer="grid">
+            <Command idref="getCatalogs">
+               <Output modelaction="rename" index="TABLE_CAT" name="Database"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Catalog">
+         <!-- Drop all views since these are available for type="Tables" -->
+         <DataView type="Tables" action="drop"/>
+         <DataView type="References" action="drop"/>
+      </ObjectView>
+
+      <ObjectView type="Tables">
+         <DataView type="Tables" label="Tables" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+               <Input name="command" value="select * from ${catalog=catalog}${object=TABLE_NAME}"/>
+            </Input>
+            <Input name="menuItem" value="Script: DROP TABLE">
+               <Input name="command" value="drop table ${catalog=catalog}${object=TABLE_NAME}"/>
+            </Input>
+
+            <Command idref="mysql.getTables">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="type" value="NOT IN ('VIEW')"/>
+               <Output modelaction="rename" index="1" name="TABLE_NAME"/>
+            </Command>
+         </DataView>
+         <DataView type="References" label="References" viewer="tables-refs"
+                 doclink="../databaseExplorer/databaseExplorer.html#mozTocId809328">
+            <Command idref="getTables">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="objectname" value="%"/>               
+               <Input name="tableType" value="TABLE"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Table">
+         <!--Replace this view-->
+         <DataView type="Info" label="Info" viewer="form">
+            <Command idref="mysql.getTable">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="table" value="${objectname}"/>
+            </Command>
+         </DataView>
+
+         <!--Replace this view-->
+         <DataView type="Columns" label="Columns" viewer="grid">
+            <Command idref="mysql.getColumns">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="table" value="${objectname}"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Source" label="DDL" viewer="ddl">
+            <Input name="formatSQL" value="true"/>
+         </DataView>
+
+         <DataView type="Source" label="Native DDL" viewer="text">
+            <Input name="dataColumn" value="Create Table"/>
+            <Input name="formatSQL" value="false"/>
+
+            <Command idref="mysql.getCreateObject">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="name" value="${objectname}"/>
+               <Input name="type" value="TABLE"/>
+            </Command>
+            <Message>
+               <![CDATA[
+<html>
+This view shows the DDL produced by the MySQL "SHOW CREATE TABLE" command.
+</html>
+               ]]>
+            </Message>
+         </DataView>
+
+         <If test="#dm.getDatabaseMajorVersion() gte 5">
+            <!--Add this view-->
+            <DataView type="Triggers" label="Triggers" viewer="grid">
+               <Command idref="mysql.getTriggers">
+                  <Input name="catalog" value="${catalog}"/>
+                  <Input name="name" value="%"/>
+                  <Input name="type" value="${objectname}"/>
+               </Command>
+            </DataView>
+         </If>
+      </ObjectView>
+
+      <ObjectView type="Views">
+         <DataView type="Views" label="Views" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+               <Input name="command" value="select * from ${catalog=catalog}${object=TABLE_NAME}"/>
+            </Input>
+            <Input name="menuItem" value="Script: DROP VIEW">
+               <Input name="command" value="drop view ${catalog=catalog}${object=TABLE_NAME}"/>
+            </Input>
+
+            <Command idref="mysql.getTables">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="type" value="IN ('VIEW')"/>
+               <Output modelaction="rename" index="1" name="TABLE_NAME"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="View">
+         <DataView type="Info" label="Info" viewer="node-form"/>
+
+         <DataView type="Columns" label="Columns" viewer="grid">
+            <Command idref="mysql.getColumns">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="table" value="${objectname}"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Data" label="Data" viewer="table-data"/>
+
+         <DataView type="RowCount" label="Row Count" viewer="table-rowcount"/>
+
+         <DataView type="TablePrivileges" label="Grants" viewer="grid">
+            <Command idref="getPrivileges">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="objectname" value="${objectname}"/>
+            </Command>
+         </DataView>
+
+         <If test="#dm.getDatabaseMajorVersion() gte 5">
+            <DataView type="Source" label="DDL" viewer="ddl">
+               <Input name="objectType" value="createView"/>
+               <Input name="formatSQL" value="true"/>
+            </DataView>
+         </If>
+      </ObjectView>
+
+      <ObjectView type="Columns">
+         <!--Replace this view-->
+         <DataView type="Columns" label="Columns" viewer="grid">
+            <Command idref="mysql.getColumns">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="table" value="${objectname}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Procedures">
+         <DataView type="Procedures" action="drop"/>
+         <DataView type="Procedures" label="Stored Procedures" viewer="grid">
+            <Command idref="mysql.getProcedures">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="name" value="%"/>
+               <Input name="type" value="PROCEDURE"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Procedure">
+         <DataView type="Columns" action="drop"/>
+         <DataView type="SourceEditor" label="Procedure Editor"
+                   viewer="ProcedureViewer"
+                   classargs="PROCEDURE"
+                   doclink="../procEditor/procEditor.html"/>
+         <DataView type="Info" label="Info" viewer="node-form"/>
+<!--         
+         <DataView type="Source" label="DDL" viewer="text">
+            <Input name="dataColumn" value="Create Procedure"/>
+            <Input name="formatSQL" value="false"/>
+
+            <Command idref="mysql.getCreateObject">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="name" value="${objectname}"/>
+               <Input name="type" value="procedure"/>
+            </Command>
+         </DataView>
+-->         
+      </ObjectView>
+
+      <ObjectView type="Functions">
+         <DataView type="Functions" label="User Functions" viewer="grid">
+            <Command idref="mysql.getProcedures">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="name" value="%"/>
+               <Input name="type" value="FUNCTION"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Function">
+         <DataView type="SourceEditor" label="Function Editor"
+                   viewer="ProcedureViewer"
+                   classargs="FUNCTION"
+                   doclink="../procEditor/procEditor.html"/>
+         <DataView type="Info" label="Info" viewer="node-form"/>
+<!--         
+         <DataView type="Source" label="DDL" viewer="text">
+            <Input name="dataColumn" value="Create Function"/>
+            <Input name="formatSQL" value="false"/>
+
+            <Command idref="mysql.getCreateObject">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="name" value="${objectname}"/>
+               <Input name="type" value="function"/>
+            </Command>
+         </DataView>
+-->         
+      </ObjectView>
+
+      <ObjectView type="Triggers">
+         <DataView type="Triggers" label="Triggers" viewer="grid">
+            <Command idref="mysql.getTriggers">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="name" value="%"/>
+               <Input name="type" value="${theTableName}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Trigger">
+         <DataView type="SourceEditor" label="Trigger Editor"
+                   viewer="ProcedureViewer"
+                   classargs="TRIGGER"
+                   doclink="../procEditor/procEditor.html"/>
+         <DataView type="Info" label="Info" viewer="node-form"/>
+<!--         
+         <DataView type="Source" label="DDL" viewer="text">
+            <Input name="dataColumn" value="DDL"/>
+            <Input name="formatSQL" value="true"/>
+
+            <Command idref="mysql.getTriggers">
+               <Input name="catalog" value="${catalog}"/>
+               <Input name="name" value="${objectname}"/>
+               <Input name="type" value="%"/>
+            </Command>
+         </DataView>
+-->         
+      </ObjectView>
+
+      <!-- DBA Views -->
+      <ObjectView type="Users">
+         <DataView type="Users" label="Users" viewer="grid">
+            <Command idref="mysql.getUsers"/>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Roles">
+         <DataView type="Roles" label="Server Roles" viewer="grid">
+            <Command idref="mysql.getPrivileges"/>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Login">
+         <DataView type="Role" label="Grants" viewer="node-form">
+            <Command idref="mysql.getUser">
+               <Input name="user" value="${objectname}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Processes">
+         <DataView type="Processes" label="Processes" viewer="grid">
+            <Command idref="mysql.getProcessList"/>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Process">
+         <DataView type="Process" label="Process" viewer="node-form"/>
+      </ObjectView>
+
+      <ObjectView type="Status">
+         <DataView type="Status" label="Status" viewer="grid">
+            <Command idref="mysql.getStatus"/>
+         </DataView>
+         <DataView type="Variables" label="Variables" viewer="grid">
+            <Command idref="mysql.getVariables"/>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Errors">
+         <DataView type="Errors" label="Errors" viewer="grid">
+            <Command idref="mysql.getErrors"/>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="TableEngines">
+         <DataView type="TableEngine" label="Table Engines" viewer="grid">
+            <Command idref="mysql.getTableEngines"/>
+            <Message>
+               <![CDATA[
+<html>
+MySQL supports several storage engines that act as handlers for different table types.
+</html>
+               ]]>
+            </Message>
+         </DataView>
+      </ObjectView>
+
+   </ObjectsViewDef>
+
+</DatabaseProfile>

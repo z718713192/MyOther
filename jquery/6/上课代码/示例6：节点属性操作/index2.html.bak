@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>属性操作 </title>
+<script type="text/javascript" src="./js/jquery-1.8.3.min.js" ></script>
+<style type="text/css" >
+ 
+</style>
+<script type="text/javascript">
+$(document).ready(function(){
+	//创建一个image节点
+	var $newNode4=$("<img src='images/kona.GIF' width='150' height='200' alt='名侦探柯南画报' /> ");
+	$newNode4.prependTo($("ul"));
+	
+	//获取与设置属性
+	//alert($($newNode4).attr("alt"));
+	//设置图片的高、宽
+	$("img").attr({width:"500",heihgt:"100"});
+	
+	var $newNode2=$("<li title='标题为千与千寻'>千与千寻</li>");
+	//创建newNode2
+	$("ul").append($newNode2);
+	//删除属性
+	//$($newNode2).removeAttr("title");	
+});
+</script>
+</head>
+<body>
+
+<h2>热门动画排行</h2>
+<ul>
+  <li>名侦探柯南</li>
+  <li>阿拉蕾</li>
+  <li>海贼王</li>
+</ul>
+</body>
+</html>

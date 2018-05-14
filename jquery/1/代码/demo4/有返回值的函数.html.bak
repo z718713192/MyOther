@@ -1,0 +1,19 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>无参函数</title>
+<script type="text/javascript">
+	//得到两个数相加的结果
+	function add(num1 , num2){
+	   return (num1+num2);
+	}
+	//var rs  = add(3,4);
+	//document.write("<h1>"+rs+"</h1>");
+</script>
+</head>
+<body>
+    <!--使用事件机制调用函数-->
+	<input type="button" value="计算" onclick="javascript:document.write(add(3,5))">
+</body>
+</html>

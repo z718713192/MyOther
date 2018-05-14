@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>typeof的功能和用法演示</title>
+<script  type="text/javascript">
+
+document.write("<h2>对变量或值调用typeof运算符返回值：</h2>");
+
+var width,height=10,name="rose";
+
+var date=new Date();   //获得时间日期对象
+
+var arr=new Array();   //定义数组
+
+document.write("width: "+typeof(width)+"<br>");
+document.write("height: "+typeof(height)+"<br>");
+document.write("name: "+typeof(name)+"<br>");
+
+
+
+</script>
+</head>
+
+<body>
+</body>
+</html>

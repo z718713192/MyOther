@@ -1,0 +1,242 @@
+<!--
+   @(#)$Id: generic-actions.xml 13243 2011-04-14 09:27:45Z rogge $
+
+   Copyright (c) DbVis Software AB. All Rights Reserved.
+-->
+
+<!-- =================================================================== -->
+<!-- Definition of the object actions that are used by the tree in the   -->
+<!-- generic profile                                                     -->
+<!-- =================================================================== -->
+
+<ObjectsActionDef>
+   <ActionGroup type="Databases">
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+         <Action id="generic-databases-create-table" label="Create Table" icon="add" reload="true"
+                 class="tableCreateOrAlter"
+                 classargs="create"
+                 doclink="../tableDesigner/tableDesigner.html#mozTocId786186"/>
+
+      </If>
+   </ActionGroup>
+
+   <ActionGroup type="Catalog">
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+         <Action id="generic-catalog-create-table" label="Create Table" icon="add" reload="true"
+                 class="tableCreateOrAlter"
+                 classargs="create"
+                 doclink="../tableDesigner/tableDesigner.html#mozTocId786186"/>
+
+      </If>
+   </ActionGroup>
+
+   <ActionGroup type="Schema">
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+         <Action id="generic-schema-create-table" label="Create Table" icon="add" reload="true"
+                 class="tableCreateOrAlter"
+                 classargs="create"
+                 doclink="../tableDesigner/tableDesigner.html#mozTocId786186"/>
+            
+      </If>
+   </ActionGroup>
+
+   <ActionGroup type="Tables">
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+         <Action id="generic-tables-create-table" label="Create Table" icon="add" reload="true"
+                 class="tableCreateOrAlter"
+                 classargs="create"
+                 doclink="../tableDesigner/tableDesigner.html#mozTocId786186"/>
+      </If>
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+         <Action id="generic-new-table-import-data" label="Import Table Data" icon="import"
+                 class="tableDataImport"
+                 doclink="../exportImport/exportImport.html#mozTocId708449"/>
+      </If>
+
+   </ActionGroup>
+
+   <ActionGroup type="Table">
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+
+         <!--
+           This action has been modified to allow for the SQL syntax required by Firebird:
+             DBVIS-885 The generated CREATE INDEX statement does not work with Firebird
+         -->
+
+         <Action id="generic-table-create-index" label="Create Index" reload="true">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Index Name" name="indexname" style="text"/>
+            <Input label="Unique" name="unique" style="check">
+               <Values>unique</Values>
+            </Input>
+
+            <If test="#db.getDatabaseType().equals('firebird')">
+               <Input name="sortorder" label="Sort Order" style="radio">
+                  <Labels>ASC|DESC|Default</Labels>
+                  <Values>ASC|DESC|</Values>
+                  <Default>ASC</Default>
+               </Input>
+            </If>
+
+            <Input label="Columns" style="separator"/>
+
+            <Input name="columns" style="grid">
+               <If test="#db.getDatabaseType().equals('firebird')">
+                  <Arg name="output" value="${_prefix}${columnname}${_suffix}"/>
+               </If>
+               <Else>
+                  <Arg name="output" value="${_prefix}${columnname}${_suffix}${_sortorder}"/>
+               </Else>
+               <Arg name="newline" value=", "/>
+
+               <Input name="columnname" label="Column Name" style="list">
+                  <Values column="4">
+                     <Command idref="getColumnNamesFor">
+                        <Input name="table_catalog" value="${catalog}"/>
+                        <Input name="table_schema" value="${schema}"/>
+                        <Input name="table_name" value="${objectname}"/>
+                     </Command>
+                  </Values>
+                  <Default>${0}</Default>
+               </Input>
+               <If test="! #db.getDatabaseType().equals('firebird')">
+                  <Input name="sortorder" label="Sort Order" style="radio">
+                     <Labels>ASC|DESC|Default</Labels>
+                     <Values>ASC|DESC|</Values>
+                     <Default>ASC</Default>
+                  </Input>
+               </If>
+               <SetVar name="_sortorder" value='#sortorder.equals("") ? "" : " " + #sortorder'/>
+               <SetVar name="_prefix" value='#cp.getBool("DelimitedIdentifiersScripting") ? #cp.getProperty("DelimitedIdentifierBegin") : ""'/>
+               <SetVar name="_suffix" value='#cp.getBool("DelimitedIdentifiersScripting") ? #cp.getProperty("DelimitedIdentifierEnd") : ""'/>
+            </Input>
+
+            <If test="#db.getDatabaseType().equals('firebird')">
+               <SetVar name="_sortorder" value='#sortorder.equals("") ? "" : " " + #sortorder'/>
+            </If>
+            <SetVar name="_unique" value='#unique.equals("") ? "" : " " + #unique'/>
+            <SetVar name="_columns" value='#columns.trim().equals("") ? "" : "(" + #columns + ")"'/>
+            <SetVar name="_prefix" value='#cp.getBool("DelimitedIdentifiersScripting") ? #cp.getProperty("DelimitedIdentifierBegin") : ""'/>
+            <SetVar name="_suffix" value='#cp.getBool("DelimitedIdentifiersScripting") ? #cp.getProperty("DelimitedIdentifierEnd") : ""'/>
+
+            <Command>
+               <If test="#db.getDatabaseType().equals('firebird')">
+                  <SQL>
+                     <![CDATA[create${_unique}${_sortorder} index ${_prefix}${indexname}${_suffix} on ${_prefix}${objectname}${_suffix} ${_columns}]]>
+                  </SQL>
+               </If>
+               <Else>
+                  <SQL>
+                     <![CDATA[create${_unique} index ${_prefix}${indexname}${_suffix} on ${_prefix}${objectname}${_suffix} ${_columns}]]>
+                  </SQL>
+               </Else>
+            </Command>
+            <Confirm>
+               <![CDATA[Create index "${indexname}"?]]>
+            </Confirm>
+            <Result>
+               <![CDATA[Index "${indexname}" created!]]>
+            </Result>
+         </Action>
+      </If>
+
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+         <Action id="generic-table-import-data" label="Import Table Data" icon="import"
+                 class="tableDataImport"
+                 doclink="../exportImport/exportImport.html#mozTocId708449"/>
+      </If>
+
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+         <Action id="generic-table-export" label="Export Table" icon="export"
+                 class="tableExport"
+                 doclink="../exportImport/exportImport.html#mozTocId584466"/>
+      </If>
+
+      <Separator/>
+
+      <ActionGroup label="Script Object to SQL Editor">
+         <Action id="generic-table-script-select" label="SELECT" icon="selectFrom"
+                 class="sqlBuilder"
+                 classargs="select"/>
+         <Action id="generic-table-script-insert" label="INSERT" icon="insertRow"
+                 class="sqlBuilder"
+                 classargs="insert"/>
+         <Action id="generic-table-script-update" label="UPDATE" icon="updateRow"
+                 class="sqlBuilder"
+                 classargs="update"/>
+         <Action id="generic-table-script-delete" label="DELETE" icon="deleteWhere"
+                 class="sqlBuilder"
+                 classargs="delete"/>
+
+         <Separator/>
+
+         <Action id="generic-table-script-drop" label="DROP TABLE" icon="DeleteSheet"
+                 class="sqlBuilder"
+                 classargs="drop"/>
+      </ActionGroup>
+
+      <ActionGroup label="Script Object to New SQL Editor">
+         <Action id="generic-table-script-select-new" label="SELECT" icon="selectFrom"
+                 class="sqlBuilder"
+                 classargs="select,newEditor"/>
+         <Action id="generic-table-script-insert-new" label="INSERT" icon="insertRow"
+                 class="sqlBuilder"
+                 classargs="insert,newEditor"/>
+         <Action id="generic-table-script-update-new" label="UPDATE" icon="updateRow"
+                 class="sqlBuilder"
+                 classargs="update,newEditor"/>
+         <Action id="generic-table-script-delete-new" label="DELETE" icon="deleteWhere"
+                 class="sqlBuilder"
+                 classargs="delete,newEditor"/>
+
+         <Separator/>
+
+         <Action id="generic-table-script-drop-new" label="DROP TABLE" icon="DeleteSheet"
+                 class="sqlBuilder"
+                 classargs="drop,newEditor"/>
+      </ActionGroup>
+   </ActionGroup>
+
+   <ActionGroup type="Index">
+      <If test="#sp.getProperty('dbvis.license.type') eq 'Personal'">
+         <Action id="generic-table-drop-index" label="Drop Index" reload="true" icon="remove">
+            <Input label="Database" style="text" editable="false">
+               <Default>${catalog}</Default>
+            </Input>
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${theTableName}</Default>
+            </Input>
+            <Input label="Index Name" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+
+            <SetVar name="_prefix" value='#cp.getBool("DelimitedIdentifiersScripting") ? #cp.getProperty("DelimitedIdentifierBegin") : ""'/>
+            <SetVar name="_suffix" value='#cp.getBool("DelimitedIdentifiersScripting") ? #cp.getProperty("DelimitedIdentifierEnd") : ""'/>
+
+            <Command>
+               <SQL>
+                  <![CDATA[drop index ${_prefix}${objectname}${_suffix}]]>
+               </SQL>
+            </Command>
+            <Confirm>
+               <![CDATA[Really drop index "${objectname}"?]]>
+            </Confirm>
+            <Result>
+               <![CDATA[Index "${objectname}" has been dropped!]]>
+            </Result>
+         </Action>
+      </If>
+   </ActionGroup>
+
+</ObjectsActionDef>

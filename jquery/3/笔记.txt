@@ -1,0 +1,50 @@
+ 一：
+	1:jQuery是什么？
+	jQuery是目前最流行的JavaScript程序库
+
+	2:jQuery能做什么？
+	A:访问和操作DOM（document.getElementByXXX）元素
+	b:控制页面样式
+	c:对页面事件进行处理
+	d:扩展新的jQuery插件
+	e:
+	
+	3:jQuery的优势？
+	a:体积小，压缩后只有100左右kb
+	b:强大的选择器
+	c:出色的DOM封装
+	d:可靠的事件处理机制
+	e:出色的浏览器兼容性
+	f:使用隐式迭代简化编程
+	g:丰富的插件支持
+
+	4:如何获取jQuery？
+	http：//jQuery.com
+		jQuery库文件：
+		jQuery-1·8·3·js
+		没有压缩，用于开发环境
+		jQuery-1·8·3·min·js
+		压缩后的，用于 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+
+
+

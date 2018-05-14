@@ -1,0 +1,43 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>jQuery-2 </title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <style type="text/css">
+		
+  </style>
+
+    <script type="text/javaScript" src="js/jquery-1.8.3.js"></script>
+
+	<script type="text/javaScript">
+		<!--
+			 $(function(){
+				$("h3").click(function(){
+
+					$("h3").css("color","blue").next().css("height","10px")
+
+					$("p").css("height","10px");
+				}); 
+			 });
+		-->
+	</script>
+
+ </head>
+	
+ <body>
+  <h3>你是人间的四月天</h3>
+  
+	<p>jQuery的优势？</p>
+	<p>a:体积小，压缩后只有100左右kb</p>
+	<p>b:强大的选择器</p>
+	<p>c:出色的DOM封装</p>
+	<p>d:可靠的事件处理机制</p>
+	<p>e:出色的浏览器兼容性</p>
+	<p>f:使用隐式迭代简化编程</p>
+	<p>g:丰富的插件支持</p>
+ 
+ </body>
+</html>

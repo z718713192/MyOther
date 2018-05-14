@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE DatabaseProfile SYSTEM "dbvis-defs.dtd" [
+   <!ENTITY generic-commands SYSTEM "generic-commands.xml">
+   <!ENTITY generic-view SYSTEM "generic-view.xml">
+   ]>
+
+<!--
+   Copyright (c) DbVis Software AB. All Rights Reserved.
+-->
+
+<DatabaseProfile
+   desc="Profile for H2"
+   version="$Revision: 13243 $"
+   date="$Date: 2011-04-14 02:27:45 -0700 (Thu, 14 Apr 2011) $"
+   minver="7.1">
+
+   <Commands>
+
+      &generic-commands;
+
+      <Command id="h2.getIndexes">
+         <SQL>
+            <![CDATA[
+SELECT
+    *
+FROM
+    INFORMATION_SCHEMA.INDEXES
+WHERE
+    TABLE_SCHEMA = '${schema}'
+    AND TABLE_NAME LIKE '${tableNamePattern}'
+    AND NOT IS_GENERATED
+ORDER BY INDEX_NAME
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="h2.getSequences">
+         <SQL>
+            <![CDATA[
+SELECT
+    *
+FROM
+    INFORMATION_SCHEMA.SEQUENCES
+WHERE
+    SEQUENCE_SCHEMA = '${schema}'
+    AND SEQUENCE_NAME LIKE '${sequenceName}'
+ORDER BY SEQUENCE_NAME
+            ]]>
+         </SQL>
+      </Command>
+   </Commands>
+
+   <!-- =================================================================== -->
+   <!-- Definition of the object actions that are used by the tree and views -->
+   <!-- =================================================================== -->
+
+   <ObjectsActionDef>
+      <ActionGroup type="Schemas">
+         <Action id="h2-schemas-create" label="Create Schema" reload="true"
+                 resetschemas="true" icon="add">
+            <Input label="Schema Name" name="schemaName" style="text"/>
+            <Command>
+              <SQL><![CDATA[create schema ${schemaName}]]></SQL>
+            </Command>
+            <Result>
+               Schema ${schemaName} created!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Schema">
+         <Action id="h2-schema-drop" label="Drop Schema" reload="true"
+                 resetschemas="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop schema "${schema}"]]></SQL></Command>
+            <Confirm>
+               Really drop schema ${schema}?
+            </Confirm>
+            <Result>
+               Schema ${schema} has been dropped!
+            </Result>
+         </Action>
+         <Action id="h2-schema-export" label="Export Schema"
+                 icon="export" reload="false"
+                 class="schemaExport"
+                 doclink="../exportImport/exportImport.html#mozTocId816546"/>
+      </ActionGroup>
+
+      <ActionGroup type="Tables">
+         <Action id="h2-tables-create-table" label="Create Table"
+                 icon="add" reload="true"
+                 class="tableCreateOrAlter"
+                 classargs="create"
+                 doclink="../tableDesigner/tableDesigner.html#mozTocId786186"/>
+
+         <Action id="h2-new-table-import-data" label="Import Table Data" icon="import"
+                 class="tableDataImport"
+                 doclink="../exportImport/exportImport.html#mozTocId708449"/>
+
+      </ActionGroup>
+      
+      <ActionGroup type="Table">
+         <Action id="h2-tables-alter-table" label="Alter Table"
+                 icon="edit" reload="true"
+                 class="tableCreateOrAlter"
+                 classargs="alter"
+                 doclink="../tableDesigner/tableDesigner.html#mozTocId740254"/>
+
+         <Action id="h2-table-rename" label="Rename Table" reload="true" icon="rename">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="New Table Name" name="newTable" style="text"/>
+            <Command>
+               <SQL><![CDATA[alter table "${schema}"."${objectname}" rename to "${newTable}"]]></SQL>
+            </Command>
+            <Confirm>
+               Confirm rename of ${schema}.${objectname} to ${newTable}?
+            </Confirm>
+            <Result>
+               Table ${schema}.${objectname} renamed to ${newTable}!
+            </Result>
+         </Action>
+
+         <Action id="h2-table-clear" label="Empty Table" reload="true">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+
+            <Command>
+               <SQL><![CDATA[delete from "${schema}"."${objectname}"]]></SQL>
+            </Command>
+            <Confirm>
+               Really remove all rows in table ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               All rows in table ${schema}.${objectname} has been removed!
+            </Result>
+         </Action>
+
+         <Action id="h2-table-drop" label="Drop Table" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop table "${schema}"."${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop table ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               Table ${schema}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Action id="h2-table-import-data" label="Import Table Data" icon="import"
+                 class="tableDataImport"
+                 doclink="../exportImport/exportImport.html#mozTocId708449"/>
+
+         <Action id="h2-table-export" label="Export Table" icon="export"
+                 class="tableExport"
+                 doclink="../exportImport/exportImport.html#mozTocId584466"/>
+
+         <Separator/>
+         
+         <Action id="h2-table-create-index" label="Create Index" reload="true">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Index Name" name="indexname" style="text"/>
+            <Input name="type" label="Type" style="radio">
+               <Labels>Non-unique|Unique|Primary Key</Labels>
+               <Values>|UNIQUE|PRIMARY KEY</Values>
+               <Default>UNIQUE</Default>
+            </Input>
+
+            <Input label="Columns" style="separator"/>
+
+            <Input name="columns" style="grid">
+               <Arg name="output" value='"${columnname}"${_sortorder}'/>
+               <Arg name="newline" value=", "/>
+
+               <Input name="columnname" label="Column Name" style="list">
+                  <Values column="4">
+                     <Command idref="getColumnNamesFor">
+                        <Input name="table_catalog" value="${catalog}"/>
+                        <Input name="table_schema" value="${schema}"/>
+                        <Input name="table_name" value="${objectname}"/>
+                     </Command>
+                  </Values>
+                  <Default>${0}</Default>
+               </Input>
+               <Input name="sortorder" label="Sort Order" style="radio">
+                  <Labels>ASC|DESC|Default</Labels>
+                  <Values>ASC|DESC|</Values>
+                  <Default>ASC</Default>
+               </Input>
+               <SetVar name="_sortorder" value='#sortorder.equals("") ? "" : " " + #sortorder'/>
+            </Input>
+
+            <SetVar name="_type" value='#type.equals("") ? "" : " " + #type'/>
+            <SetVar name="_columns" value='#columns.trim().equals("") ? "" : "(" + #columns + ")"'/>
+            <SetVar name="_indexname" value='#indexname.trim().equals("") ? "" : " \"" + #indexname + "\""'/>
+
+            <Command>
+               <SQL>
+                  <![CDATA[create${_type} index${_indexname} on "${schema}"."${objectname}" ${_columns}]]>
+               </SQL>
+            </Command>
+            <Confirm>
+               <![CDATA[Create index "${indexname}"?]]>
+            </Confirm>
+            <Result>
+               <![CDATA[Index "${indexname}" created!]]>
+            </Result>
+         </Action>
+
+         <Separator/>
+
+         <ActionGroup label="Script Object to SQL Editor">
+            <Action id="h2-table-script-select" label="SELECT" icon="selectFrom"
+                    class="sqlBuilder"
+                    classargs="select"/>
+            <Action id="h2-table-script-insert" label="INSERT" icon="insertRow"
+                    class="sqlBuilder"
+                    classargs="insert"/>
+            <Action id="h2-table-script-update" label="UPDATE" icon="updateRow"
+                    class="sqlBuilder"
+                    classargs="update"/>
+            <Action id="h2-table-script-delete" label="DELETE" icon="deleteWhere"
+                    class="sqlBuilder"
+                    classargs="delete"/>
+
+            <Separator/>
+
+            <Action id="h2-table-script-create" label="CREATE TABLE" icon="createTable"
+                    class="ddlGenerator"
+                    classargs="createTable"/>
+         </ActionGroup>
+
+         <ActionGroup label="Script Object to New SQL Editor">
+            <Action id="h2-table-script-select-new" label="SELECT" icon="selectFrom"
+                    class="sqlBuilder"
+                    classargs="select,newEditor"/>
+            <Action id="h2-table-script-insert-new" label="INSERT" icon="insertRow"
+                    class="sqlBuilder"
+                    classargs="insert,newEditor"/>
+            <Action id="h2-table-script-update-new" label="UPDATE" icon="updateRow"
+                    class="sqlBuilder"
+                    classargs="update,newEditor"/>
+            <Action id="h2-table-script-delete-new" label="DELETE" icon="deleteWhere"
+                    class="sqlBuilder"
+                    classargs="delete,newEditor"/>
+
+            <Separator/>
+
+            <Action id="h2-table-script-create-new" label="CREATE TABLE" icon="createTable"
+                    class="ddlGenerator"
+                    classargs="createTable,newEditor"/>
+         </ActionGroup>
+      </ActionGroup>
+
+      <ActionGroup type="View">
+         <Action id="h2-view-drop" label="Drop View" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="View" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop view "${schema}"."${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop view ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               View ${schema}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Action id="h2-view-export" label="Export View" icon="export"
+                 class="viewExport"
+                 doclink="../exportImport/exportImport.html#mozTocId584466"/>
+
+         <Separator/>
+
+         <ActionGroup label="Script Object to SQL Editor">
+            <Action id="h2-view-script-select" label="SELECT" icon="selectFrom"
+                    class="sqlBuilder"
+                    classargs="select"/>
+            <Action id="h2-view-script-insert" label="INSERT" icon="insertRow"
+                    class="sqlBuilder"
+                    classargs="insert"/>
+            <Action id="h2-view-script-update" label="UPDATE" icon="updateRow"
+                    class="sqlBuilder"
+                    classargs="update"/>
+            <Action id="h2-view-script-delete" label="DELETE" icon="deleteWhere"
+                    class="sqlBuilder"
+                    classargs="delete"/>
+
+            <Separator/>
+
+            <Action id="h2-view-script-create" label="CREATE VIEW" icon="createTable"
+                    class="ddlGenerator"
+                    classargs="createView"/>
+         </ActionGroup>
+
+         <ActionGroup label="Script Object to New SQL Editor">
+            <Action id="h2-view-script-select-new" label="SELECT" icon="selectFrom"
+                    class="sqlBuilder"
+                    classargs="select,newEditor"/>
+            <Action id="h2-view-script-insert-new" label="INSERT" icon="insertRow"
+                    class="sqlBuilder"
+                    classargs="insert,newEditor"/>
+            <Action id="h2-view-script-update-new" label="UPDATE" icon="updateRow"
+                    class="sqlBuilder"
+                    classargs="update,newEditor"/>
+            <Action id="h2-view-script-delete-new" label="DELETE" icon="deleteWhere"
+                    class="sqlBuilder"
+                    classargs="delete,newEditor"/>
+
+            <Separator/>
+
+            <Action id="h2-view-script-create-new" label="CREATE VIEW" icon="createTable"
+                    class="ddlGenerator"
+                    classargs="createView,newEditor"/>
+         </ActionGroup>
+      </ActionGroup>
+
+      <ActionGroup type="Index">
+         <Action id="h2-index-drop" label="Drop Index" reload="true" icon="remove">
+            <Input label="Index" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop index "${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop index ${objectname}?
+            </Confirm>
+            <Result>
+               Index ${objectname} dropped!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Sequences">
+         <Action id="h2-sequences-create" label="Create Sequence" reload="true" icon="add">
+            <Input label="Schema" name="_schema" style="list">
+               <Values>
+                  <Command>
+                     <SQL>
+            <![CDATA[SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA ORDER BY SCHEMA_NAME]]></SQL>
+                  </Command>
+               </Values>
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Sequence Name" name="sequenceName" style="text"/>
+            <Input label="Start With" name="startWith" style="text">
+               <Default>1</Default>
+            </Input>
+            <Input label="Increment By" name="increment" style="text">
+               <Default>1</Default>
+            </Input>
+            <Command>
+               <SQL>
+                  <![CDATA[
+ create sequence "${_schema}"."${sequenceName}"
+   start with ${startWith}
+   increment by ${increment}]]>
+                </SQL>
+            </Command>
+            <Result>
+               Sequence ${schema}.${sequenceName} created!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Sequence">
+         <Action id="h2-sequence-drop" label="Drop Sequence" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Sequence" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command>
+               <SQL><![CDATA[drop sequence "${schema}"."${objectname}"]]></SQL>
+            </Command>
+            <Confirm>
+               Really drop sequence ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               Sequence ${schema}.${objectname} dropped!
+            </Result>
+         </Action>
+      </ActionGroup>
+   </ObjectsActionDef>
+
+   <!-- =================================================================== -->
+   <!-- Definition of the database objects tree structure -->
+   <!-- =================================================================== -->
+
+   <ObjectsTreeDef id="h2">
+
+      <GroupNode type="Schemas" label="Schemas">
+         <DataNode type="Schema" label="${getSchemas.TABLE_SCHEM}">
+            <SetVar name="schema" value="${getSchemas.TABLE_SCHEM}"/>
+            <Command idref="getSchemas">
+               <Filter type="Schema" name="Schema">
+                  <Column index="Schema" name="Name"/>
+               </Filter>
+            </Command>
+
+            <GroupNode type="Tables" label="Tables">
+               <DataNode type="Table" label="${getTables.TABLE_NAME}">
+                  <SetVar name="objectname" value="${getTables.TABLE_NAME}"/>
+                  <SetVar name="rowcount" value="true"/>
+                  <SetVar name="acceptInQB" value="true"/>
+                  <Command idref="getTables">
+                     <Input name="schema" value="${schema}"/>
+                     <Input name="tableType" value="SYSTEM TABLE, TABLE"/>
+                     <Filter type="Table" name="Table">
+                        <Column index="TABLE_NAME" name="Name"/>
+                     </Filter>
+                  </Command>
+
+                  <!-- Need to keep the objectname for the current table in
+                       a new variable so that the viewers will be able to pick up
+                       the correct input to display -->
+                  <SetVar name="theTableName" value="${objectname}"/>
+
+                  <GroupNode type="Columns" label="Columns">
+                     <DataNode type="Column" label="${getColumns.COLUMN_NAME}   (${getColumns.TYPE_NAME})" isLeaf="true">
+                        <SetVar name="objectname" value="${getColumns.COLUMN_NAME}"/>
+                        <Command idref="getColumns">
+                           <Input name="schema" value="${schema}"/>
+                           <Input name="objectname" value="${theTableName}"/>
+                        </Command>
+                     </DataNode>
+                  </GroupNode>
+
+                  <GroupNode type="Indexes" label="Indexes">
+                     <DataNode type="Index" label="${h2.getIndexes.INDEX_NAME}   (${h2.getIndexes.TABLE_SCHEMA}.${h2.getIndexes.TABLE_NAME})" isLeaf="true">
+                        <SetVar name="objectname" value="${h2.getIndexes.INDEX_NAME}"/>
+                        <Command idref="h2.getIndexes">
+                           <Input name="schema" value="${schema}"/>
+                           <Input name="tableNamePattern" value="${theTableName}"/>
+                        </Command>
+                     </DataNode>
+                  </GroupNode>
+               </DataNode>
+            </GroupNode>
+
+            <GroupNode type="Views" label="Views">
+               <DataNode type="View" label="${getTables.TABLE_NAME}" isLeaf="true">
+                  <SetVar name="objectname" value="${getTables.TABLE_NAME}"/>
+                  <SetVar name="rowcount" value="true"/>
+                  <SetVar name="acceptInQB" value="true"/>
+                  <Command idref="getTables">
+                     <Input name="schema" value="${schema}"/>
+                     <Input name="tableType" value="SYSTEM VIEW, VIEW"/>
+                     <Filter type="View" name="View">
+                        <Column index="TABLE_NAME" name="Name"/>
+                     </Filter>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+
+            <SetVar name="theTableName" value="%"/>
+
+            <GroupNode type="Indexes" label="Indexes">
+               <DataNode type="Index" label="${h2.getIndexes.INDEX_NAME}   (${h2.getIndexes.TABLE_SCHEMA}.${h2.getIndexes.TABLE_NAME})" isLeaf="true">
+                  <SetVar name="objectname" value="${h2.getIndexes.INDEX_NAME}"/>
+                  <Command idref="h2.getIndexes">
+                     <Input name="schema" value="${schema}"/>
+                     <Input name="tableNamePattern" value="%"/>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+
+            <GroupNode type="Sequences" label="Sequences">
+               <DataNode type="Sequence" label="${h2.getSequences.SEQUENCE_NAME}" isLeaf="true">
+                  <SetVar name="objectname" value="${h2.getSequences.SEQUENCE_NAME}" />
+                  <Command idref="h2.getSequences">
+                     <Input name="schema" value="${schema}" />
+                     <Input name="sequenceName" value="%" />
+                     <Filter type="Sequence" name="Sequence">
+                        <Column index="SEQUENCE_NAME" name="Name" />
+                     </Filter>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+         </DataNode>
+      </GroupNode>
+   </ObjectsTreeDef>
+
+   <!-- =================================================================== -->
+   <!-- Definition of the database objects views -->
+   <!-- =================================================================== -->
+
+   <!-- Include the generic-view -->
+   &generic-view;
+
+   <ObjectsViewDef id="h2" extends="generic">
+      <ObjectView type="Schemas">
+         <DataView type="Schemas" label="Schemas" viewer="grid">
+            <Command idref="getSchemas"/>
+         </DataView>
+      </ObjectView>
+      
+      <ObjectView type="Schema">
+         <!-- Drop all views since these are available for type="Tables" -->
+         <DataView type="Tables" action="drop"/>
+         <DataView type="References" action="drop"/>
+      </ObjectView>
+
+      <ObjectView type="Tables">
+         <DataView type="Tables" label="Tables" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+                <Input name="command" value="select * from ${schema=TABLE_SCHEMA}${object=TABLE_NAME}"/>
+             </Input>
+             <Input name="menuItem" value="Script: DROP TABLE">
+                <Input name="command" value="drop table ${schema=TABLE_SCHEMA}${object=TABLE_NAME}"/>
+             </Input>
+
+            <Command idref="getTables">
+               <Input name="schema" value="${schema}"/>
+               <Input name="tableType" value="SYSTEM TABLE, TABLE"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Table">
+         <DataView type="Source" label="DDL" viewer="ddl">
+            <Input name="formatSQL" value="true"/>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Views">
+         <DataView type="Views" label="Views" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+                <Input name="command" value="select * from ${schema=TABLE_SCHEMA}${object=TABLE_NAME}"/>
+             </Input>
+             <Input name="menuItem" value="Script: DROP VIEW">
+                <Input name="command" value="drop view ${schema=TABLE_SCHEMA}${object=TABLE_NAME}"/>
+             </Input>
+
+            <Command idref="getTables">
+               <Input name="schema" value="${schema}"/>
+               <Input name="tableType" value="SYSTEM VIEW, VIEW"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="View">
+         <DataView type="Info" label="Info" viewer="node-form"/>
+         <DataView type="Data" label="Data" viewer="table-data"/>
+         <DataView type="RowCount" label="Row Count" viewer="table-rowcount"/>
+         <DataView type="Source" label="DDL" viewer="ddl">
+            <Input name="objectType" value="createView"/>
+            <Input name="formatSQL" value="true"/>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Indexes">
+         <DataView type="Indexes" label="Indexes" viewer="grid">
+            <Command idref="h2.getIndexes">
+               <Input name="schema" value="${schema}"/>
+               <Input name="tableNamePattern" value="${theTableName}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Index">
+         <DataView type="Index" label="Index" viewer="node-form"/>
+         <DataView type="Source" label="DDL" viewer="ddl">
+            <Input name="objectType" value="createIndex"/>
+            <Input name="formatSQL" value="true"/>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Sequences">
+         <DataView type="Sequences" label="Sequences" viewer="grid">
+            <Command idref="h2.getSequences">
+               <Input name="schema" value="${schema}"/>
+               <Input name="sequenceName" value="%" />
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Sequence">
+         <DataView type="Info" label="Info" viewer="form">
+            <Command idref="h2.getSequences">
+               <Input name="schema" value="${schema}"/>
+               <Input name="sequenceName" value="${objectname}" />
+            </Command>
+         </DataView>
+      </ObjectView>
+   </ObjectsViewDef>
+</DatabaseProfile>

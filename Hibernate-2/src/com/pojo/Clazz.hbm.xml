@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<!-- 描述的是类对应的表 -->
+	<class name="com.pojo.Clazz" table="t_class">
+		<!-- 用id节点映射表的主键 -->
+		<id name="id" type="int" column="cid">
+			<!-- 主键的生成规则 sequence:序列 -->
+			<generator class="sequence">
+				<param name="seq_clazz"></param>
+			</generator>
+		</id>
+		<property name="name" column="cname"></property>
+	</class>
+</hibernate-mapping>

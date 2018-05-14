@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>主导航特效</title>
+<style type="text/css">
+*{
+	margin:0px;
+	padding:0px;
+}
+#nav ul{
+	list-style: none;
+	margin-top: 10px;
+	margin-left: 30px;
+}
+#nav ul li{
+	display: block;
+	float: left;
+	padding: 0px 5px;
+}
+#nav ul li a{
+	color: #000;
+	text-decoration: none;
+}
+.heightlight{
+	background-color: #aaa;
+}
+</style>
+<script type="text/javascript" src="./js/jquery-1.8.3.min.js" ></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	//1.鼠标悬停
+	//鼠标悬停给li添加背景
+	$("#nav li").mouseover(function(){
+	    //要做的事情
+	    $(this).addClass("heightlight");
+	});
+	//2.鼠标离开，背景色还原
+	$("#nav li").mouseout(function(){
+	    $(this).removeClass("heightlight");
+	});
+});
+</script>
+</head>
+<body>
+
+<div id="nav">
+
+	<ul>
+	     <li><a href="#">首页</a></li>
+	     <li><a href="#">服装城</a></li>
+	     <li><a href="#">电器城</a></li>
+	     <li><a href="#">易购超市</a></li>
+	     <li><a href="#">易购团</a></li>
+	     <li><a href="#">在线游戏</a></li>
+	</ul>
+
+</div>
+</body>
+</html>

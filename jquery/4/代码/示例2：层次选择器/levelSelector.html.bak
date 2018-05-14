@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>jQuery层次选择器示例</title>
+<style type="text/css">
+* {margin:0; padding:0; line-height:30px;}
+body {margin:10px;}
+#menu {border:2px solid #03C; padding:10px;}
+a {text-decoration:none; margin-right:5px;}
+span {font-weight:bold; padding:3px;}
+h2 {margin:10px 0;}
+</style>
+<script src="js/jquery-1.8.3.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	 $("h2").click(function(){
+	     //后代选择器
+		//$("#menu span").css("background","#09f");
+	   //子元素选择器 
+	  // $("#menu>span").css("background","#09F");
+	  //相邻元素选择器
+	 // $("h2+dl").css("background","#09F");
+	 //同辈元素选择器
+	 $("h2~dl").css("background","#09F")
+	 });
+});
+</script>
+</head>
+<body>
+	<div id="menu">
+
+		<h2>全部旅游产品分类</h2>
+		<dl>
+			<dt>北京周边旅游
+			   <span>特价</span>
+			</dt>
+			<dd><a href="#">按天数</a> <a href="#">海边旅游</a> <a href="#">草原</a></dd>
+		</dl>
+
+		<dl>
+			<dt>景点门票</dt>
+			<dd><a href="#">名胜</a> <a href="#">暑期</a> <a href="#">乐园</a></dd>
+			<dd><a href="#">山水</a> <a href="#">双休</a></dd>
+		</dl>
+
+		<span>更多分类</span>
+	</div>
+</body>
+</html>

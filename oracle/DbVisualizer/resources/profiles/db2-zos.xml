@@ -1,0 +1,1228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE DatabaseProfile SYSTEM "dbvis-defs.dtd" [
+   <!ENTITY generic-commands SYSTEM "generic-commands.xml">
+   <!ENTITY generic-view SYSTEM "generic-view.xml">
+   ]>
+
+<!--
+   Copyright (c) DbVis Software AB. All Rights Reserved.
+-->
+
+<DatabaseProfile
+   desc="Profile for DB2 z/OS"
+   version="$Revision: 15793 $"
+   date="$Date: 2012-12-06 12:53:45 +0100 (Thu, 06 Dec 2012) $"
+   minver="7.1">
+
+   <!--
+    Profile Notes
+    =============
+      None.
+
+    Change Log
+    ==========
+      2012-07-10:
+        - Added condition for major version >= 10 as the column holding the
+          view source has changed name from "text" to "statement"
+      2007-10-22:
+        - Index Columns view was empty for indexes listed as child to table
+          objects
+        - Create Table action now works
+        - Schema name filtering should now work even if result set claim
+          the column name is "1" for Schema (in some situations column names
+          appear as integers instead of their real name)
+        - Create Alias action added
+        - Right click menu scripting actions in the Tables and Views grids
+          did not work properly
+      2007-09-11:
+        - Now show Columns and Indexes as child objects for Table objects
+      2006-09-18:
+        - Added "Empty Table" action for table nodes
+   -->
+
+   <!-- =================================================================== -->
+   <!-- Definition of the commands -->
+   <!-- =================================================================== -->
+
+   <Commands>
+
+      &generic-commands;
+
+      <Command id="db2.getSchemas">
+         <SQL>
+            <![CDATA[
+select distinct schema
+from (select creator as "SCHEMA" from sysibm.systables
+         union all
+      select schema from sysibm.sysdatatypes
+         union all
+      select schema from sysibm.sysroutines
+         union all
+      select schema from sysibm.systriggers
+     ) a
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getTables">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.systables
+where  creator   =  '${owner}' 
+  and  name    like '${table}' 
+  and  type    like '${type}'
+            ]]>
+         </SQL>
+      </Command>
+
+      <!-- Overridden since we want a lot more then the std one gives -->
+      <Command id="db2.getColumns">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.syscolumns
+where  tbcreator = '${owner}'
+  and  tbname    = '${table}' 
+order by colno
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getViews">
+         <SQL>
+            <![CDATA[
+select distinct
+       v.creator,
+       v.name,
+       v.check
+from   sysibm.sysviews  v 
+join   sysibm.systables t 
+on     v.creator =  t.creator 
+  and  v.name    =  t.name
+where  t.type    =  '${type}' 
+  and  v.creator =  '${owner}' 
+  and  v.name  like '${view}'
+order by 1, 2, 3
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getViewSource">
+         <SQL>
+select
+<If test="#dm.getDatabaseMajorVersion() gte 10">
+       statement
+</If>
+<Else>
+       text
+</Else>
+from   sysibm.sysviews
+where  creator = '${owner}' 
+  and  name    = '${view}'
+order by seqno
+         </SQL>
+      </Command>
+
+      <Command id="db2.getTriggers">
+         <SQL>
+            <![CDATA[
+select *
+from   sysibm.systriggers
+where  schema = '${owner}'
+  and  seqno  = 1
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getTableTriggers">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.systriggers 
+where  tbowner = '${owner}' 
+  and  tbname  = '${table}'
+order by schema, name, seqno 
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getTableTriggerSource">
+         <SQL>
+            <![CDATA[
+select text 
+from   sysibm.systriggers
+where  schema  = '${owner}' 
+  and  name    = '${name}'
+order by schema, name, seqno
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getIndexes">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.sysindexes
+where  creator = '${owner}' 
+and    tbname like '${tableName}'
+order by creator, name
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getIndexColumns">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.syskeys
+where  ixcreator = '${owner}' 
+  and  ixname    = '${name}' 
+order by ixname, colseq
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getSystemTables">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.systables 
+where  creator = '${owner}'
+order by creator, name
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getPackages">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.syspackage
+where  creator = '${owner}'
+order by collid, name
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getFunctions">
+         <SQL>
+            <![CDATA[
+select *
+from   sysibm.sysroutines
+where  routinetype = 'F'
+and    schema = '${owner}'
+order by schema, name
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getFunctionParms">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.sysparms
+where  schema          = '${owner}' 
+  and  name            = '${function}'
+  and  specificname    = '${specificname}'
+  and  routinetype     = 'F'
+  and  rowtype        in (${rowtype}) 
+order by specificname, ordinal
+            ]]>
+         </SQL>
+      </Command>
+
+
+      <Command id="db2.getProcedures">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.sysroutines
+where  routinetype = 'P'
+and    schema = '${owner}'
+order by schema, name
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getProcedureParms">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.sysparms
+where  schema          = '${owner}' 
+  and  name            = '${procedure}'
+  and  specificname    = '${specificname}'
+  and  routinetype     = 'P' 
+order by specificname, ordinal
+            ]]>
+         </SQL>
+      </Command>
+
+      <!-- ================================================================= -->
+      <!-- DBA related commands requiring certain privileges in the database -->
+      <!-- ================================================================= -->
+      <!--
+            <Command id="db2.getGrantees">
+               <SQL>
+      <![CDATA[
+      select * from syscat.dbauth
+      where granteetype = '${granteetype}' and grantee like '${grantee}'
+      ]]>
+               </SQL>
+                  <Input name="granteetype" value="U"/>
+                  <Input name="grantee" value="%"/>
+            </Command>
+      -->
+      <Command id="db2.getAuth">
+         <SQL>
+            <![CDATA[
+select * from sysibm.${table}
+            ]]>
+         </SQL>
+      </Command>
+
+      <Command id="db2.getTableSpaces">
+         <SQL>
+            <![CDATA[
+select * 
+from   sysibm.systablespace
+order by dbname, name
+            ]]>
+         </SQL>
+      </Command>
+
+   </Commands>
+
+   <!-- =================================================================== -->
+   <!-- Definition of the object actions that are used by the tree and views -->
+   <!-- =================================================================== -->
+
+   <ObjectsActionDef>
+      <ActionGroup type="Tables">
+         <Action id="db2-tables-create-table" label="Create Table"
+                 icon="add" reload="true"
+                 class="tableCreateOrAlter"
+                 classargs="create"
+                 doclink="../tableDesigner/tableDesigner.html#mozTocId786186"/>
+      </ActionGroup>
+
+      <ActionGroup type="Table">
+         <Action id="db2-table-rename" label="Rename Table" reload="true" icon="rename">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="New Table Name" name="newTable" style="text"/>
+            <Command>
+               <SQL><![CDATA[rename table "${schema}"."${objectname}" to "${newTable}"]]></SQL>
+            </Command>
+            <Confirm>
+               Confirm rename of ${schema}.${objectname} to ${newTable}?
+            </Confirm>
+            <Result>
+               Table ${schema}.${objectname} renamed to ${newTable}!
+            </Result>
+         </Action>
+
+         <Action id="db2-table-clear" label="Empty Table" reload="true">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+
+            <Command>
+               <SQL><![CDATA[delete from `${schema}`.`${objectname}`]]></SQL>
+            </Command>
+            <Confirm>
+               Really remove all rows in table ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               All rows in table ${schema}.${objectname} has been removed!
+            </Result>
+         </Action>
+
+         <Action id="db2-table-drop" label="Drop Table" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Table Hierarchy" name="hierarchy" style="check">
+               <Values>hierarchy</Values>
+            </Input>
+            <Command><SQL><![CDATA[drop table ${hierarchy} "${schema}"."${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop table ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               Table ${schema}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Action id="db2-table-import-data" label="Import Table Data" icon="import"
+                 class="tableDataImport"
+                 doclink="../exportImport/exportImport.html#mozTocId708449"/>            
+
+         <Separator/>
+
+         <Action id="db2-table-create-index" label="Create Index" reload="true">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Index Name" name="indexname" style="text"/>
+            <Input label="Unique" name="unique" style="check">
+               <Values>unique</Values>
+            </Input>
+
+            <Input label="Columns" style="separator"/>
+
+            <Input name="columns" style="grid">
+               <Arg name="output" value='"${columnname}"${_sortorder}'/>
+               <Arg name="newline" value=", "/>
+
+               <Input name="columnname" label="Column Name" style="list">
+                  <Values column="4">
+                     <Command idref="getColumnNamesFor">
+                        <Input name="table_catalog" value="${catalog}"/>
+                        <Input name="table_schema" value="${schema}"/>
+                        <Input name="table_name" value="${objectname}"/>
+                     </Command>
+                  </Values>
+                  <Default>${0}</Default>
+               </Input>
+               <Input name="sortorder" label="Sort Order" style="radio">
+                  <Labels>ASC|DESC|Default</Labels>
+                  <Values>ASC|DESC|</Values>
+                  <Default>ASC</Default>
+               </Input>
+               <SetVar name="_sortorder" value='#sortorder.equals("") ? "" : " " + #sortorder'/>
+            </Input>
+
+            <SetVar name="_unique" value='#unique.equals("") ? "" : " " + #unique'/>
+            <SetVar name="_columns" value='#columns.trim().equals("") ? "" : "(" + #columns + ")"'/>
+            <SetVar name="_indexname" value='#indexname.trim().equals("") ? "" : " \"" + #indexname + "\""'/>
+
+            <Command>
+               <SQL>
+                  <![CDATA[create${_unique} index${_indexname} on "${schema}"."${objectname}" ${_columns}]]>
+               </SQL>
+            </Command>
+            <Confirm>
+               <![CDATA[Create index "${indexname}"?]]>
+            </Confirm>
+            <Result>
+               <![CDATA[Index "${indexname}" created!]]>
+            </Result>
+         </Action>
+
+         <Separator/>
+
+         <Action id="db2-table-script" label="Script Table" icon="scriptObject"
+                 class="sqlBuilder"
+                 classargs="script-dialog,SELECT,SELECT *,INSERT,UPDATE,DELETE"/>
+
+      </ActionGroup>
+
+      <ActionGroup type="View">
+         <Action id="db2-view-drop" label="Drop View" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="View" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop view "${schema}"."${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop view ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               View ${schema}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Separator/>
+
+         <Action id="db2-view-script" label="Script View" icon="scriptObject"
+                 class="sqlBuilder"
+                 classargs="script-dialog,SELECT,SELECT *,INSERT,UPDATE,DELETE"/>
+
+      </ActionGroup>
+
+      <ActionGroup type="Aliases">
+         <Action id="db2-aliases-create" label="Create Alias" reload="true" icon="add">
+            <Input label="Alias Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Alias Name" name="alias" style="text" editable="true"/>
+            <Input label="Source Schema" name="sourceschema" style="list" editable="true">
+               <Values>
+                  <Command idref="db2.getSchemas"/>
+               </Values>
+            </Input>
+            <Input label="Source Object" name="sourcename" style="list" editable="true">
+               <Values>
+                  <Command>
+                     <SQL>
+                        <![CDATA[
+select name
+from   sysibm.systables
+where  creator   =  '${sourceschema}' 
+  and  type    in ('T', 'V')
+order by name
+                    ]]>
+                     </SQL>
+                  </Command>
+               </Values>
+            </Input>
+            <Command><SQL><![CDATA[create alias "${schema}"."${alias}" for "${sourceschema}"."${sourcename}"]]></SQL></Command>
+            <Confirm>
+               Really create alias ${schema}.${alias}?
+            </Confirm>
+            <Result>
+               Alias ${schema}.${alias} has been created!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Alias">
+         <Action id="db2-alias-drop" label="Drop Alias" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Alias" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop alias "${schema}"."${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop alias ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               Alias ${schema}.${objectname} has been dropped!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Index">
+         <Action id="db2-index-drop" label="Drop Index" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Index" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop index "${schema}"."${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop index ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               Index ${schema}.${objectname} dropped!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Function">
+         <Action id="db2-function-drop" label="Drop Function" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Function" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop function "${schema}"."${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop function ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               Function ${schema}.${objectname} dropped!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Procedure">
+         <Action id="db2-procedure-drop" label="Drop Procedure" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Procedure" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop procedure "${schema}"."${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop procedure ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               Procedure ${schema}.${objectname} dropped!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="Trigger">
+         <Action id="db2-trigger-drop" label="Drop Trigger" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Trigger" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Command><SQL><![CDATA[drop trigger "${schema}"."${objectname}"]]></SQL></Command>
+            <Confirm>
+               Really drop trigger ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               Trigger ${schema}.${objectname} dropped!
+            </Result>
+         </Action>
+      </ActionGroup>
+
+   </ObjectsActionDef>
+
+   <!-- =================================================================== -->
+   <!-- Definition of the database objects tree structure -->
+   <!-- This definition do not list catalogs as these are not supported -->
+   <!-- by DB2 on z/OS. -->
+   <!-- =================================================================== -->
+
+   <ObjectsTreeDef id="db2-zos">
+      <GroupNode type="Schemas" label="Schemas">
+         <DataNode type="Schema" label="${db2.getSchemas.SCHEMA}" is-empty-output="continue">
+            <SetVar name="schema" value="${db2.getSchemas.SCHEMA}"/>
+            <Command idref="db2.getSchemas">
+               <Filter type="Schema" name="Schema">
+                  <Column index="1" name="Name"/>
+               </Filter>
+            </Command>
+
+            <GroupNode type="Tables" label="Tables">
+               <DataNode type="Table" label="${getTables.TABLE_NAME}" sort="getTables.TABLE_NAME">
+                  <SetVar name="objectname" value="${getTables.TABLE_NAME}"/>
+                  <SetVar name="rowcount" value="true"/>
+                  <SetVar name="acceptInQB" value="true"/>
+                  <Command idref="getTables">
+                     <Input name="schema" value="${schema}"/>
+                     <Input name="objectname" value="%"/>
+                     <Input name="tableType" value="TABLE,SYSTEM TABLE"/>
+                     <Filter type="Table" name="Table">
+                        <Column index="TABLE_NAME" name="Name"/>
+                     </Filter>
+                  </Command>
+
+                  <!-- Need to keep the objectname for the current table in
+                       a new variable so that the viewers will be able to pick up
+                       the correct input to display -->
+                  <SetVar name="theTableName" value="${objectname}"/>
+
+                  <GroupNode type="Columns" label="Columns">
+                     <DataNode type="Column" label="${getColumns.COLUMN_NAME}   (${getColumns.TYPE_NAME})" isLeaf="true">
+                        <SetVar name="objectname" value="${getColumns.COLUMN_NAME}"/>
+                        <Command idref="getColumns">
+                           <Input name="schema" value="${schema}"/>
+                           <Input name="objectname" value="${objectname}"/>
+                        </Command>
+                     </DataNode>
+                  </GroupNode>
+
+                  <GroupNode type="Indexes" label="Indexes">
+                     <DataNode type="Index" label="${db2.getIndexes.NAME}   (${db2.getIndexes.TBCREATOR}.${db2.getIndexes.TBNAME})" isLeaf="true">
+                        <SetVar name="objectname" value="${db2.getIndexes.NAME}"/>
+                        <Command idref="db2.getIndexes">
+                           <Input name="owner" value="${schema}"/>
+                           <Input name="tableName" value="${theTableName}"/>
+                        </Command>
+                     </DataNode>
+                  </GroupNode>
+
+               </DataNode>
+            </GroupNode>
+
+            <!-- Reset the temporary variable so that the following DataNodes
+                 operates properly -->
+            <SetVar name="theTableName" value="%"/>
+
+            <GroupNode type="Views" label="Views">
+               <DataNode type="View" label="${getTables.TABLE_NAME}" sort="getTables.TABLE_NAME" isLeaf="true">
+                  <SetVar name="objectname" value="${getTables.TABLE_NAME}"/>
+                  <SetVar name="rowcount" value="true"/>
+                  <SetVar name="acceptInQB" value="true"/>
+                  <Command idref="getTables">
+                     <Input name="schema" value="${schema}"/>
+                     <Input name="objectname" value="%"/>
+                     <Input name="tableType" value="VIEW"/>
+                     <Filter type="View" name="View">
+                        <Column index="TABLE_NAME" name="Name"/>
+                     </Filter>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+
+            <GroupNode type="Aliases" label="Aliases">
+               <DataNode type="Alias" label="${getTables.TABLE_NAME}" sort="getTables.TABLE_NAME" isLeaf="true">
+                  <SetVar name="objectname" value="${getTables.TABLE_NAME}"/>
+                  <SetVar name="acceptInQB" value="true"/>
+                  <Command idref="getTables">
+                     <Input name="schema" value="${schema}"/>
+                     <Input name="objectname" value="%"/>
+                     <Input name="tableType" value="ALIAS"/>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+
+            <GroupNode type="Indexes" label="Indexes">
+               <DataNode type="Index" label="${db2.getIndexes.NAME}   (${db2.getIndexes.TBCREATOR}.${db2.getIndexes.TBNAME})" isLeaf="true">
+                  <SetVar name="objectname" value="${db2.getIndexes.NAME}"/>
+                  <Command idref="db2.getIndexes">
+                     <Input name="owner" value="${schema}"/>
+                     <Input name="tableName" value="${theTableName}"/>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+            <!--
+                        <GroupNode type="SystemTables" label="System Tables" isLeaf="true"/>
+            -->
+            <GroupNode type="SummaryTables" label="Summary Tables">
+               <DataNode type="SummaryTable" label="${getTables.TABLE_NAME}" sort="getTables.TABLE_NAME" isLeaf="true">
+                  <SetVar name="objectname" value="${getTables.TABLE_NAME}"/>
+                  <SetVar name="rowcount" value="true"/>
+                  <SetVar name="acceptInQB" value="true"/>
+                  <Command idref="getTables">
+                     <Input name="schema" value="${schema}"/>
+                     <Input name="objectname" value="%"/>
+                     <Input name="tableType" value="MATERIALIZED QUERY TABLE"/>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+
+            <GroupNode type="Functions" label="Functions">
+               <DataNode type="Function" label="${db2.getFunctions.NAME}" isLeaf="true">
+                  <SetVar name="objectname" value="${db2.getFunctions.NAME}"/>
+                  <Command idref="db2.getFunctions">
+                     <Input name="owner" value="${schema}"/>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+
+            <GroupNode type="Procedures" label="Stored Procedures">
+               <DataNode type="Procedure" label="${db2.getProcedures.NAME}" isLeaf="true">
+                  <SetVar name="objectname" value="${db2.getProcedures.NAME}"/>
+                  <Command idref="db2.getProcedures">
+                     <Input name="owner" value="${schema}"/>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+
+            <GroupNode type="Packages" label="Packages">
+               <DataNode type="Package" label="${db2.getPackages.NAME}" isLeaf="true">
+                  <SetVar name="objectname" value="${db2.getPackages.NAME}"/>
+                  <Command idref="db2.getPackages">
+                     <Input name="owner" value="${schema}"/>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+
+            <GroupNode type="Triggers" label="Triggers">
+               <DataNode type="Trigger" label="${db2.getTriggers.NAME}" isLeaf="true">
+                  <SetVar name="objectname" value="${db2.getTriggers.NAME}"/>
+                  <Command idref="db2.getTriggers">
+                     <Input name="owner" value="${schema}"/>
+                  </Command>
+               </DataNode>
+            </GroupNode>
+         </DataNode>
+      </GroupNode>
+
+      <GroupNode type="DBA" label="DBA Views">
+         <GroupNode type="Users" label="Authorizations" isLeaf="true">
+            <!--
+                        <DataNode type="User" label="${db2.getGrantees.GRANTEE}" isLeaf="true">
+                           <SetVar name="objectname" value="${db2.getGrantees.GRANTEE}"/>
+                           <Command idref="db2.getGrantees">
+                                 <Input name="granteetype" value="U"/>
+                                 <Input name="grantee" value="%"/>
+                           </Command>
+                        </DataNode>
+            -->
+         </GroupNode>
+         <!--
+                  <GroupNode type="Groups" label="Groups">
+                     <DataNode type="Group" label="${db2.getGrantees.GRANTEE}" isLeaf="true">
+                        <SetVar name="objectname" value="${db2.getGrantees.GRANTEE}"/>
+                        <Command idref="db2.getGrantees">
+                              <Input name="granteetype" value="G"/>
+                              <Input name="grantee" value="%"/>
+                        </Command>
+                     </DataNode>
+                  </GroupNode>
+         -->
+         <GroupNode type="Tablespaces" label="Table Spaces" isLeaf="true"/>
+      </GroupNode>
+
+   </ObjectsTreeDef>
+
+   <!-- =================================================================== -->
+   <!-- Definition of the database objects views -->
+   <!-- =================================================================== -->
+
+   <!-- Include the generic-view -->
+   &generic-view;
+
+   <ObjectsViewDef id="db2-zos" extends="generic">
+
+      <ObjectView type="Schemas">
+         <DataView type="Schemas" label="Schemas" viewer="grid">
+            <Command idref="db2.getSchemas"/>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Schema">
+         <!-- Drop all views since these are available for type="Tables" -->
+         <DataView type="Tables" action="drop"/>
+         <DataView type="References" action="drop"/>
+      </ObjectView>
+
+      <ObjectView type="Tables">
+         <!-- Replace the Tables view with a specific for DB2 -->
+         <DataView type="Tables" label="Tables" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+               <Input name="command" value="select * from ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+            <Input name="menuItem" value="Script: DROP TABLE">
+               <Input name="command" value="drop table ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+
+            <Command idref="db2.getTables">
+               <Input name="owner" value="${schema}"/>
+               <Input name="table" value="%"/>
+               <Input name="type" value="T"/>
+            </Command>
+         </DataView>
+         <DataView type="References" label="References" viewer="tables-refs">
+            <Command idref="getTables">
+               <Input name="schema" value="${schema}"/>
+               <Input name="objectname" value="%"/>
+               <Input name="tableType" value="TABLE,SYSTEM TABLE"/>
+            </Command>
+         </DataView>
+
+      </ObjectView>
+
+      <!-- Sub def of the Table type view -->
+      <ObjectView type="Table">
+         <!-- Replace the Info view -->
+         <DataView type="Info" label="Info" viewer="form">
+            <Command idref="db2.getTables">
+               <Input name="owner" value="${schema}"/>
+               <Input name="table" value="${objectname}"/>
+               <Input name="type" value="T"/>
+            </Command>
+         </DataView>
+
+         <!-- Drop the Versioned view -->
+         <DataView type="Versioned" action="drop"/>
+
+         <!-- Add the Trigger view -->
+         <DataView type="Trigger" label="Triggers" viewer="form">
+            <Command idref="db2.getTableTriggers">
+               <Input name="owner" value="${schema}"/>
+               <Input name="table" value="${objectname}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Views">
+         <DataView type="Views" label="Views" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+               <Input name="command" value="select * from ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+            <Input name="menuItem" value="Script: DROP VIEW">
+               <Input name="command" value="drop view ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+
+            <Command idref="db2.getViews">
+               <Input name="owner" value="${schema}"/>
+               <Input name="view" value="%"/>
+               <Input name="type" value="V"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="View">
+         <DataView type="Info" label="Info" viewer="form">
+            <Command idref="db2.getViews">
+               <Input name="owner" value="${schema}"/>
+               <Input name="view" value="${objectname}"/>
+               <Input name="type" value="V"/>
+            </Command>
+         </DataView>
+         <DataView type="Columns" label="Columns" viewer="grid">
+            <Command idref="db2.getColumns">
+               <Input name="owner" value="${schema}"/>
+               <Input name="table" value="${objectname}"/>
+            </Command>
+         </DataView>
+         <DataView type="Data" label="Data" viewer="table-data"/>
+         <DataView type="RowCount" label="Row Count" viewer="table-rowcount"/>
+         <DataView type="Index" label="Indexes" viewer="grid">
+            <Command idref="getIndexes">
+               <Input name="schema" value="${schema}"/>
+               <Input name="objectname" value="${objectname}"/>
+            </Command>
+         </DataView>
+         <DataView type="Source" label="Source" viewer="text">
+            <Input name="formatSQL" value="true"/>
+
+            <Command idref="db2.getViewSource">
+               <Input name="owner" value="${schema}"/>
+               <Input name="view" value="${objectname}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Aliases">
+         <DataView type="Aliases" label="Aliases" viewer="grid">
+            <Command idref="db2.getTables">
+               <Input name="owner" value="${schema}"/>
+               <Input name="table" value="%"/>
+               <Input name="type" value="A"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Alias">
+         <DataView type="Info" label="Info" viewer="form">
+            <Command idref="db2.getTables">
+               <Input name="owner" value="${schema}"/>
+               <Input name="table" value="${objectname}"/>
+               <Input name="type" value="A"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="SummaryTables">
+         <DataView type="SummaryTables" label="Summary Tables" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+               <Input name="command" value="select * from ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+            <Input name="menuItem" value="Script: DROP VIEW">
+               <Input name="command" value="drop view ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+
+            <Command idref="db2.getViews">
+               <Input name="owner" value="${schema}"/>
+               <Input name="view" value="%"/>
+               <Input name="type" value="S"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="SummaryTable">
+         <DataView type="Info" label="Info" viewer="form">
+            <Command idref="db2.getViews">
+               <Input name="owner" value="${schema}"/>
+               <Input name="view" value="${objectname}"/>
+               <Input name="type" value="S"/>
+            </Command>
+         </DataView>
+         <DataView type="Columns" label="Columns" viewer="grid">
+            <Command idref="db2.getColumns">
+               <Input name="owner" value="${schema}"/>
+               <Input name="table" value="${objectname}"/>
+            </Command>
+         </DataView>
+         <DataView type="Data" label="Data" viewer="table-data"/>
+         <DataView type="RowCount" label="Row Count" viewer="table-rowcount"/>
+         <DataView type="Index" label="Indexes" viewer="grid">
+            <Command idref="getIndexes">
+               <Input name="schema" value="${schema}"/>
+               <Input name="objectname" value="${objectname}"/>
+            </Command>
+         </DataView>
+         <DataView type="Source" label="Source" viewer="text">
+            <Input name="formatSQL" value="true"/>
+
+            <Command idref="db2.getViewSource">
+               <Input name="owner" value="${schema}"/>
+               <Input name="view" value="${objectname}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="SystemTables">
+         <DataView type="SystemTables" label="SYSCAT" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+               <Input name="command" value="select * from ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+
+            <Command idref="db2.getSystemTables">
+               <Input name="owner" value="SYSCAT"/>
+            </Command>
+         </DataView>
+         <DataView type="SystemTables" label="SYSFUN" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+               <Input name="command" value="select * from ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+
+            <Command idref="db2.getSystemTables">
+               <Input name="owner" value="SYSFUN"/>
+            </Command>
+         </DataView>
+         <DataView type="SystemTables" label="SYSIBM" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+               <Input name="command" value="select * from ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+
+            <Command idref="db2.getSystemTables">
+               <Input name="owner" value="SYSIBM"/>
+            </Command>
+         </DataView>
+         <DataView type="SystemTables" label="SYSSTAT" viewer="grid">
+            <Input name="menuItem" value="Script: SELECT ALL">
+               <Input name="command" value="select * from ${schema=CREATOR}${object=NAME}"/>
+            </Input>
+
+            <Command idref="db2.getSystemTables">
+               <Input name="owner" value="SYSSTAT"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Indexes">
+         <DataView type="Indexes" label="Indexes" viewer="grid">
+            <Command idref="db2.getIndexes">
+               <Input name="owner" value="${schema}"/>
+               <Input name="tableName" value="${theTableName}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Index">
+         <DataView type="Index" label="Index" viewer="node-form"/>
+         <DataView type="Columns" label="Columns" viewer="form">
+            <Command idref="db2.getIndexColumns">
+               <Input name="owner" value="${schema}"/>
+               <Input name="name" value="${objectname}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Triggers">
+         <DataView type="Triggers" label="Triggers" viewer="grid">
+            <Command idref="db2.getTriggers">
+               <Input name="owner" value="${schema}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Trigger">
+         <DataView type="Info" label="Info" viewer="node-form"/>
+         <DataView type="Source" label="Source" viewer="text">
+            <Input name="formatSQL" value="true"/>
+            <Command idref="db2.getTableTriggerSource">
+               <Input name="owner" value="${db2.getTriggers.SCHEMA}"/>
+               <Input name="name" value="${objectname}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Procedures">
+         <DataView type="Procedures" label="Stored Procedures" viewer="grid">
+            <Command idref="db2.getProcedures">
+               <Input name="owner" value="${schema}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Procedure">
+         <!-- Drop this one -->
+         <DataView type="Columns" action="drop"/>
+
+         <DataView type="Info" label="Info" viewer="node-form"/>
+         <DataView type="Interface" label="Interface" viewer="form">
+            <Command idref="db2.getProcedureParms">
+               <Input name="owner" value="${db2.getProcedures.SCHEMA}"/>
+               <Input name="procedure" value="${objectname}"/>
+               <Input name="specificname" value="${db2.getProcedures.SPECIFICNAME}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Functions">
+         <DataView type="Functions" label="Functions" viewer="grid">
+            <Command idref="db2.getFunctions">
+               <Input name="owner" value="${schema}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Function">
+         <DataView type="Info" label="Info" viewer="node-form"/>
+         <DataView type="Input" label="Parameters" viewer="form">
+            <Command idref="db2.getFunctionParms">
+               <Input name="owner" value="${db2.getFunctions.SCHEMA}"/>
+               <Input name="function" value="${objectname}"/>
+               <Input name="specificname" value="${db2.getFunctions.SPECIFICNAME}"/>
+               <Input name="rowtype" value="'P'"/>
+            </Command>
+         </DataView>
+         <DataView type="Output" label="Result" viewer="form">
+            <Command idref="db2.getFunctionParms">
+               <Input name="owner" value="${db2.getFunctions.SCHEMA}"/>
+               <Input name="function" value="${objectname}"/>
+               <Input name="specificname" value="${db2.getFunctions.SPECIFICNAME}"/>
+               <Input name="rowtype" value="'R','C'"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Packages">
+         <DataView type="Packages" label="Packages" viewer="grid">
+            <Command idref="db2.getPackages">
+               <Input name="owner" value="${schema}"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+
+      <ObjectView type="Package">
+         <DataView type="Info" label="Info" viewer="node-form"/>
+      </ObjectView>
+
+      <!-- DBA views -->
+
+      <ObjectView type="Users">
+         <!--
+                  <DataView type="Users" label="Users" viewer="grid">
+                     <Command idref="db2.getGrantees">
+                           <Input name="granteetype" value="U"/>
+                           <Input name="grantee" value="%"/>
+                     </Command>
+                  </DataView>
+               </ObjectView>
+
+               <ObjectView type="User">
+                  <DataView type="Info" label="Info" viewer="node-form"/>
+         -->
+         <DataView type="Privileges" label="User Privilege" viewer="grid">
+            <Command idref="db2.getAuth">
+               <Input name="table" value="sysuserauth"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Privileges" label="Database Privilege" viewer="grid">
+            <Command idref="db2.getAuth">
+               <Input name="table" value="sysdbauth"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Privileges" label="Schema Privilege" viewer="grid">
+            <Command idref="db2.getAuth">
+               <Input name="table" value="sysschemaauth"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Privileges" label="Table Privilege" viewer="grid">
+            <Command idref="db2.getAuth">
+               <Input name="table" value="systabauth"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Privileges" label="Column Privilege" viewer="grid">
+            <Command idref="db2.getAuth">
+               <Input name="table" value="syscolauth"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Privileges" label="Routine Privilege" viewer="grid">
+            <Command idref="db2.getAuth">
+               <Input name="table" value="sysroutineauth"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Privileges" label="Plan Privilege" viewer="grid">
+            <Command idref="db2.getAuth">
+               <Input name="table" value="sysplanauth"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Privileges" label="Package Privilege" viewer="grid">
+            <Command idref="db2.getAuth">
+               <Input name="table" value="syspackauth"/>
+            </Command>
+         </DataView>
+
+         <DataView type="Privileges" label="Resource Privilege" viewer="grid">
+            <Command idref="db2.getAuth">
+               <Input name="table" value="sysresauth"/>
+            </Command>
+         </DataView>
+      </ObjectView>
+      <!--
+            <ObjectView type="Groups">
+               <DataView type="Groups" label="Roles" viewer="grid">
+                  <Command idref="db2.getGrantees">
+                        <Input name="granteetype" value="G"/>
+                        <Input name="grantee" value="%"/>
+                  </Command>
+               </DataView>
+            </ObjectView>
+
+            <ObjectView type="Group">
+               <DataView type="Info" label="Info" viewer="node-form"/>
+               <DataView type="Privileges" label="Schema Privilege" viewer="grid">
+                  <Command idref="db2.getAuth">
+                        <Input name="table" value="schemaauth"/>
+                        <Input name="grantee" value="${objectname}"/>
+                  </Command>
+               </DataView>
+
+               <DataView type="Privileges" label="Table Privilege" viewer="grid">
+                  <Command idref="db2.getAuth">
+                        <Input name="table" value="tabauth"/>
+                        <Input name="grantee" value="${objectname}"/>
+                  </Command>
+               </DataView>
+
+               <DataView type="Privileges" label="Column Privilege" viewer="grid">
+                  <Command idref="db2.getAuth">
+                        <Input name="table" value="colauth"/>
+                        <Input name="grantee" value="${objectname}"/>
+                  </Command>
+               </DataView>
+
+               <DataView type="Privileges" label="Index Privilege" viewer="grid">
+                  <Command idref="db2.getAuth">
+                        <Input name="table" value="indexauth"/>
+                        <Input name="grantee" value="${objectname}"/>
+                  </Command>
+               </DataView>
+
+               <DataView type="Privileges" label="Package Privilege" viewer="grid">
+                  <Command idref="db2.getAuth">
+                        <Input name="table" value="packageauth"/>
+                        <Input name="grantee" value="${objectname}"/>
+                  </Command>
+               </DataView>
+
+               <DataView type="Privileges" label="Passthru Privilege" viewer="grid">
+                  <Command idref="db2.getAuth">
+                        <Input name="table" value="passthruauth"/>
+                        <Input name="grantee" value="${objectname}"/>
+                  </Command>
+               </DataView>
+            </ObjectView>
+      -->
+      <ObjectView type="Tablespaces">
+         <DataView type="Tablespaces" label="Table Spaces" viewer="form">
+            <Command idref="db2.getTableSpaces"/>
+         </DataView>
+      </ObjectView>
+
+   </ObjectsViewDef>
+
+</DatabaseProfile>

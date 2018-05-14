@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>jQuery属性选择器示例</title>
+<style type="text/css">
+#box {background-color:#FFF; border:2px solid #000; padding:5px;}
+</style>
+<script src="js/jquery-1.8.3.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	 $("h2").click(function(){
+	   //h2[title]
+	   //$("h2[title]").css("background","#09F");
+	   //属性值
+	 // $("[class=odds]").css("background","#09F");
+	    //复合属性
+		$("li[class][title*=y]").css("background","#09F");
+	 });
+	
+	
+
+
+});
+</script>
+</head>
+<body>
+
+	<div id="box">
+
+		<h2 class="odds" title="cartoonlist">
+		动画列表
+		</h2>
+		
+		<ul>
+			<li class="odds" title="kn_jp">
+			名侦探柯南
+			</li>
+			<li class="evens" title="hy_jp">
+			火影忍者
+			</li>
+			<li class="odds" title="ss_jp">死神</li>
+			<li class="evens" title="yj_jp">
+			妖精的尾巴</li>
+			<li class="odds" title="yh_jp">
+			银魂</li>
+			<li class="evens" title="hm_da">
+			黑猫警长</li>
+			<li class="odds" title="xl_ds">
+			仙履奇缘
+			</li>
+		</ul>
+
+	</div>
+</body>
+</html>

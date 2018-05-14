@@ -1,0 +1,22 @@
+SQL Server JDBC驱动中sqljdbc和sqljdbc4区别
+
+
+为了支持向后兼容以及可能的升级方案，JDBC Driver 2.0 在每个安装包中都包括 2 个 JAR 类库：sqljdbc.jar 和 sqljdbc4.jar。本文将介绍SQL Server JDBC驱动中sqljdbc和sqljdbc4的区别。
+
+
+sqljdbc.jar 类库提供对JDBC 3.0 的支持。
+
+sqljdbc.jar 类库要求使用 5.0 版的 Java 运行时环境 (JRE)。连接到数据库时，在 JRE 6.0 上使用 sqljdbc.jar 会引发异常。
+
+注意： SQL Server JDBC Driver 2.0 不支持 JRE 1.4。使用 SQL Server JDBC Driver 2.0 时必须将 JRE 1.4 升级至 JRE 5.0 或更高版本。在某些情况下，您可能需要重新编译应用程序，因为它可能与 JDK 5.0 或更高版本不兼容。有关详细信息，请参阅 Sun Microsystems 网站上的文档。
+
+sqljdbc4.jar 类库提供对 JDBC 4.0 的支持。它不仅包括 sqljdbc.jar 的所有功能，还包括新增的 JDBC 4.0 方法。
+
+sqljdbc4.jar 类库要求使用 6.0 或更高版本的 Java 运行时环境 (JRE)。在 JRE 1.4 或 5.0 上使用 sqljdbc4.jar 会引发异常。
+注意： 如果应用程序必须在 JRE 6.0 上运行，即使该应用程序不使用 JDBC 4.0 功能，也应使用 sqljdbc4.jar。
+
+请注意，尽管驱动程序旨在与所有主要的 Sun 等效 Java 虚拟机一起工作并由这些虚拟机支持，但却是在 Sun JRE 5.0 或更高版本上进行测试的。
+
+SQL Server JDBC Driver 专为使用 SQL Server 2005 引入的功能而设计，但它也可以向后兼容 SQL Server 2000（包括 64 位版本）。
+
+重要提示： Microsoft SQL Server JDBC Driver 2.0 可以连接到 SQL Server 2008，但不完全支持 SQL Server 2008 中新引入的数据类型或其他功能。

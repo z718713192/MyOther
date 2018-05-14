@@ -1,0 +1,5 @@
+PostgreSQL Native Driver
+------------------------
+Version:    9.0-801 JDBC 4
+Files:      postgresql.jar
+Reference:  http://jdbc.postgresql.org

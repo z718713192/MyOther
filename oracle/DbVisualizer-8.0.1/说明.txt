@@ -1,0 +1,2 @@
+1.必须有jdk1.6以上的支持(这个压缩文件中没有，网上大把的是，自己下去吧)
+2.Help->License Key 导入根目录的dbvisualizer-8.0.1\dbvis.license

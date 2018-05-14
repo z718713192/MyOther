@@ -1,0 +1,23 @@
+一：
+	1：为什么使用javaScript？
+		a:减轻服务器的压力
+		b:javaScript可以实现各种动态的效果
+	
+	2：JavaScript是什么？
+	JavaScript是一门基于对象和事件驱动，具有安全性的脚本
+
+	脚本：寄生在别的运行环境中。寄生在html中
+	特点：a:可以在html页面中添交互行为、
+	           b:语法与java类似
+	           c:解释性的语言。无需编译
+	
+	javaScript的组成：
+		a:
+
+	如何使用javaScript？
+	a:javaScript的结构
+	<script  type="text/javaScript">
+		<!--
+			js的语法
+		-->
+	</script>

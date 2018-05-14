@@ -1,0 +1,71 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>查看一年四季的变化</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+ </head>
+ <style type="text/css">
+	#Maindiv{
+		margin:0px auto;
+		border:1px red solid;
+		width:400px;
+		height:420px;
+	}	
+	#Maindiv #div1{  
+		float:left;
+		border:1px red solid;
+		width:190px;
+		height:160px;
+	}
+	#Maindiv #div2{  
+		float:right;
+		border:1px red solid;
+		width:190px;
+		height:160px;
+	}
+	#Maindiv #div3{  
+		float:left;
+		border:1px red solid;
+		width:198px;
+		height:20px; 
+	}
+
+	#Maindiv #div4{  
+		float:left;
+		border:1px red solid;
+		width:298px;
+		height:20px; 
+	}
+ </style>
+
+<script type="text/javascript">
+		<!--
+		 
+		  
+
+		-->
+</script>
+
+ <body>
+	<div id="Maindiv">
+		<div id="div1"><img src="E:\S2\使用jQuery制作网页\2\20150518\03 提供给学员的上机练习素材\练习2：查看一年四季变化\images\1.jpg"/></div>
+		<div id="div2"><img src="E:\S2\使用jQuery制作网页\2\20150518\03 提供给学员的上机练习素材\练习2：查看一年四季变化\images\2.jpg"/></div>
+
+		<div id="div3" align="center" ><a href="javascript:location.href='上机二-春.html'">春</a></div>
+		<div id="div3" align="center"><a href="javascript:location.href='上机二-夏.html'">夏</a></div>
+
+		<div id="div1"><img src="E:\S2\使用jQuery制作网页\2\20150518\03 提供给学员的上机练习素材\练习2：查看一年四季变化\images\3.jpg"/></div>
+		<div id="div2"><img src="E:\S2\使用jQuery制作网页\2\20150518\03 提供给学员的上机练习素材\练习2：查看一年四季变化\images\4.jpg"/></div>
+
+		<div id="div3" align="center"><a href="javascript:location.href='上机二-秋.html'">秋</a></div>
+		<div id="div3" align="center"><a href="javascript:location.href='上机二-冬.html'">冬</a></div>
+
+		<div id="div4" align="center">
+			<a href="javascript:location.reload()">刷新页面</a>
+		<div>
+	</div>	
+ </body>
+</html>

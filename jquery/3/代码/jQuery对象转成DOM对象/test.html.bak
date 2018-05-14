@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title></title>
+<style type="text/css">
+
+h2{padding: 5px;}
+
+p{display: none;}
+
+</style>
+<!--引入jQuery文件-->
+<script src="js/jquery-1.8.3.js" type="text/javascript"></script>
+<!--问答效果-->
+<script type="text/javascript">
+  
+  $(function(){
+    //使用jQuery的选择器获取div对象
+    var $divob  = $("#context");
+	//将jQuery对象转换成DOM对象
+	var divOb  = $divob[0];
+	divOb.innerHTML = "<h1>div的内容</h1>";
+  })
+  
+
+
+</script>
+</head>
+<body>
+ 
+  <div id="context"></div>
+	
+
+</body>
+</html>

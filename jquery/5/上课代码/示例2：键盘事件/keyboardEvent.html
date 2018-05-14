@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>键盘事件</title>
+<style type="text/css">
+fieldset {
+	width: 300px;
+}
+dt,dd{
+	display: inline;
+}
+</style>
+<script type="text/javascript" src="./js/jquery-1.8.3.min.js" ></script>
+<script type="text/javascript">
+$(document).ready(function () {
+	
+	//为[type=password]连缀添加keyup、keydown、keypress
+	$("[type=password]").keyup(function(){
+		//将内容追加到$("#events")中去
+		$("#events").append("keyup");
+	}).keydown(function(){
+	    $("#events").append("keydown——");
+	}).keypress(function(){
+	    $("#events").append("keypress——");
+	});
+
+	//将添加的事件名在id=events的span中显示出来
+    //回车提示
+	$(document).keydown(function(event){
+	    if(event.keyCode =="13"){
+		    alert("确定要提交吗？");
+		}
+	});
+
+});
+</script>
+</head>
+<body>
+<fieldset>
+	<legend>会员登录</legend>
+	<dl>
+	    <dt>用户名</dt>
+	    <dd>
+	        <input id="userName" type="text" />
+	    </dd>
+	</dl>
+	<dl>
+	    <dt>密码</dt>
+	    <dd>
+	        <input id="password" type="password" />
+	    </dd>
+	</dl>
+	<dl>
+	    <dt></dt>
+	    <dd>
+	        <input type="submit" value="登录" />
+	    </dd>
+	</dl>
+	<span id="events"></span>
+</fieldset>
+
+</body>
+</html>

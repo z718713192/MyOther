@@ -1,0 +1,22 @@
+[INFO ] 2016-03-12 17:07:49,987 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 17:18:54,874 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:21:10,086 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:23:09,380 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:23:53,834 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:29:42,782 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:32:57,388 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:34:03,676 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:37:35,236 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:38:41,273 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:39:10,705 --http-bio-8080-exec-4-- [com.alibaba.druid.pool.DruidDataSource] {dataSource-1} inited 
+[INFO ] 2016-03-12 18:40:25,445 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 18:40:52,723 --http-bio-8080-exec-4-- [com.alibaba.druid.pool.DruidDataSource] {dataSource-1} inited 
+[INFO ] 2016-03-12 19:12:07,888 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 19:13:19,246 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 19:15:39,915 --http-bio-8080-exec-10-- [com.alibaba.druid.pool.DruidDataSource] {dataSource-1} inited 
+[INFO ] 2016-03-12 19:32:20,837 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 19:32:36,322 --http-bio-8080-exec-10-- [com.alibaba.druid.pool.DruidDataSource] {dataSource-1} inited 
+[INFO ] 2016-03-12 19:33:22,946 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 19:33:30,079 --http-bio-8080-exec-4-- [com.alibaba.druid.pool.DruidDataSource] {dataSource-1} inited 
+[INFO ] 2016-03-12 19:34:24,341 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-12 19:34:30,298 --http-bio-8080-exec-4-- [com.alibaba.druid.pool.DruidDataSource] {dataSource-1} inited 

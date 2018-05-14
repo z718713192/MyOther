@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0022)http://localhost:1634/ -->
+<html>
+<head>
+    <title>学习经历维护</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <script type="text/javascript" src="js/jquery-1.8.3.js"></script>
+    <link
+        rel="stylesheet" type="text/css" href="css/default.css">
+    <link
+        rel="stylesheet" type="text/css" href="css/style.css">
+    <meta name="GENERATOR" content="MSHTML 8.00.7600.16385">
+    <style type="text/css">
+        td {
+            background-color:#fff;
+        }
+        th {
+             background-color:#dddddd;
+             text-align:left;
+             width:33%;
+        }
+
+    </style>
+    <script type="text/javascript">
+	$(function () {
+            //给表格添加一行
+			$("table").append(buildTr(index));   //调用tr属性方法 打开就有行
+            index++;
+            bindBlur(); //调用失去光标验证
+
+
+			//单击添加行
+            $("#add").click(function () {
+                $("table").append(buildTr(index));
+                index++;
+                bindBlur();
+            });
+		})
+		var index = 0;
+		//创建tr的方法
+        function buildTr(index) {
+            var tr = "<tr>";
+			//1.学校表格属性
+            tr += "<td><input id='exp_" + index + "_school' type='text'  name='exp_" + index + "_school'></td>";   
+
+			//1.开始时间表格的属性
+			tr += "<td><input id='exp_" + index + "_startDate' type='text'  name='exp_" + index + "_startDate'></td>"; 
+			
+			//1.结束时间表格的属性
+			tr += "<td><input id='exp_" + index + "_endDate' type='text'  name='exp_" + index + "_endDate'></td>";
+            tr += "</tr>";
+			return tr;
+        }
+		//失去光标的验证
+		function bindBlur() {
+			//2.学校表格光标的验证
+            $(":input[id*='school']").blur(function () {
+                checkRequired($(this));
+            });						
+			//2.开始时间表格光标的验证
+			$(":input[id*='startDate']").blur(function () {
+                checkDate($(this));
+            });	
+			//2.结束时间表格光标的验证
+			$(":input[id*='endDate']").blur(function () {
+                checkDate($(this));
+            });
+		}
+		//3.学校验证表单
+		function checkRequired($name) {
+			
+            if ($name.val() == "") {
+                $name.find("~span").remove();    //清空
+                $name.after("<span>必填</span>");
+                return false;
+            }
+            else {
+                $name.find("~span").remove();   //方法限制为可任意填写
+                return true;
+            }
+        }
+		//3.开始时间-结束时间 表单验证
+		function checkDate($name) {
+            //必填验证
+            if ($name.val() == "") {
+                $name.find("~span").remove();
+                $name.after("<span>填写时间</span>");
+                return false;
+            }
+            else {
+                var reg = /^\d{6}$/;   // 匹配年月格式
+                if (reg.test($name.val()) == false) {
+                    $name.find("~span").remove();
+                    $name.after("<span>格式错误</span>");
+                    return false;
+                }
+                else {
+                    $name.find("~span").remove();
+                    return true;
+                }
+            }
+        }
+    </script>
+
+</head>
+<body>
+    <div class="Edu_InfoTD">
+        <form method="post" id="expForm">
+            <table border="0" cellspacing="1" cellpadding="3" width="600px" bgcolor="#cccccc">
+                    <tr>
+                        <th>学校 </th>
+                        <th>开始时间 </th>
+                        <th>结束时间 </th>
+                    </tr>    
+            </table>
+            <div ><a href="#" id="add">添加一条</a></div>      <!-- 添加 -->
+            <p>
+                <input value="全部提交" type="submit">         <!-- 提交 -->
+            </p>
+        </form>
+    </div>
+</body>
+</html>

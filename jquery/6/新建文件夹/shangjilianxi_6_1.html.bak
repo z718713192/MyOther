@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>今日团购</title>
+<style type="text/css">
+#content div{
+	float:left;
+	width:295px;
+	//border:1px #999 solid;
+	height:300px;
+	margin:10px 20px 10px 0px;
+	font-size:14px;
+}
+.picture{
+	border:1px #D51938 solid;
+	background:#D51938;
+	color:#FFF;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#content div").hover(function(){
+		$(this).addClass("picture");
+	},function(){
+		$(this).removeClass("picture");
+	}
+	);
+});
+</script>
+</head>
+
+<body>
+<div>
+	<div id="top">
+    	<img src="images/top.jpg" />
+    </div>
+    <div id="content">
+    	<div>
+        	<img src="images/pic1.jpg" />
+            <p>[包邮]亮点卡通可移除超大卡通儿童房身高贴墙贴可量180厘米(每个ID限购20件)</p>
+            <img src="images/bt1.jpg" />
+        </div>
+        <div>
+        	<img src="images/pic2.jpg" />
+            <p>[包邮]VICKI.VICKI韩国泡温泉游泳衣女加肥加大码裙式分体平角保守显瘦遮肚大胸泳装...</p>
+            <img src="images/bt2.jpg" />
+        </div>
+        <div>
+        	<img src="images/pic3.jpg" />
+            <p>[包邮]贵人鸟夏季超轻透气男子网跑鞋P26245(每个ID限购5件)</p>
+            <img src="images/bt3.jpg" />
+        </div>
+    </div>
+</div>
+</body>
+</html>

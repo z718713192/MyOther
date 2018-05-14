@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>window对象</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+ </head>
+ <script type="text/javascript">
+
+ </script>
+
+ <body onload="javascript:alert('窗体的加载事件');">
+    
+	<div style="border:1px red solid;" onmouseover="alert('鼠标来啦！')">
+      我是一个div
+	</div>
+	
+    <input type="text" onkeydown="alert('按下去了')"/>
+	<hr/>
+	<input type="text" value="默认值" onchange="alert('按下去了')"/>
+
+ </body>
+</html>

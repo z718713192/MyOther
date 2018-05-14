@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>问答特效</title>
+<style type="text/css">
+
+h2{padding: 5px;}
+
+p{display: none;}
+
+</style>
+<!--引入jQuery文件-->
+<script src="js/jquery-1.8.3.js" type="text/javascript"></script>
+<!--问答效果-->
+<script type="text/javascript">
+  
+  $(function(){
+    //为h2绑定单击事件
+    $("h2").click(function(){
+
+	   //让h2下边的p标签显示
+       $("h2").next().css("background","#faa").css("display","block");
+	});
+  
+  })
+  
+
+
+</script>
+</head>
+<body>
+	
+	<h2>什么是受益人?</h2>
+	<p>
+		<strong>解答：</strong>
+		受益人是指人身保险中由被保险人或者投保人指定的
+		享有保险金请求权的人，投保人、被保险人可以为受益人。
+	</p>
+
+
+</body>
+</html>

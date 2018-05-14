@@ -1,0 +1,2 @@
+[INFO ] 2016-03-09 10:37:08,734 --localhost-startStop-1-- [org.hibernate.validator.internal.util.Version] HV000001: Hibernate Validator 5.2.2.Final 
+[INFO ] 2016-03-09 10:37:28,588 --http-bio-8080-exec-5-- [com.alibaba.druid.pool.DruidDataSource] {dataSource-1} inited 

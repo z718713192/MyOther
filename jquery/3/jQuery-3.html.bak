@@ -1,0 +1,27 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>jQuery</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+    <script type="text/javaScript" src="js/jquery-1.8.3.js"></script>
+
+	<script type="text/javaScript">
+		<!--
+			 $(function(){
+				 $("img").click(function(){
+					 $("img").css("border","solid").css("border","red") ; 
+					  $("img").css("border-color","red") ; 
+				 });
+			 });
+		-->
+	</script>
+
+ </head>
+		<img src="D:\Documents\Pictures\靓妹图\`S`9R6@0PY$Z`L65876J}J6.jpg"/>
+ <body>
+  
+ </body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>凡客诚品帮助中心</title>
+<script type="text/javascript" src="../js/jquery-1.8.3.min.js"></script>
+<style type="text/css">
+#all{
+	background:url(images/bg1.jpg) no-repeat;
+	height:1200px;
+}
+#all #serachContent{
+	margin:260px 0px 0px 0px;
+}
+#help{
+	width:100px;
+	float:left;
+	margin:360px 0px 0px 50px;
+}
+#help dl,dt{
+	border-bottom:1px dashed #CCC;
+}
+#help dl dt,dd{
+	font-size:12px;
+}
+#help dl dd{
+	display:none;
+}
+#solve{
+	margin:430px 0px 0px 800px;
+	font-size:12px;
+}
+#solve form p,select{
+	display:none;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#all #serachContent").focus(function(){
+		$(this).val("");
+	});
+	$("#all #serachContent").blur(function(){
+		$(this).val("请输入需查询问题的关键词");
+	});
+    $("#help dl dt").mouseover(function(){
+		$(this).nextAll("dd").css("display","block");
+		$(this).parent().siblings().find("dd").css("display","none");
+	});
+	$("#solve #solveNO").click(function(){
+		$("#solve form p,select").css("display","block");
+	});
+	$("#solve #solveOK").click(function(){
+		$("#solve form p,select").css("display","none");
+	});
+	
+});
+</script>
+</head>
+
+<body>
+<div id="all">
+	<input id="serachContent" type="text" size="36" value="请输入需查询问题的关键词" />
+	<div id="help">
+    	<dl>
+        	<dt>账户管理</dt>
+            <dd>账户注册</dd>
+            <dd>找回密码</dd>
+            <dd>"我的凡客"功能说明</dd>
+            <dd>账户关联登录</dd>
+            <dd>促销信息退订</dd>
+            <dd>账户常见问题</dd>
+        </dl>
+        <dl>
+        	<dt>购物指南</dt>
+            <dd>账户注册</dd>
+            <dd>找回密码</dd>
+            <dd>"我的凡客"功能说明</dd>
+            <dd>账户关联登录</dd>
+            <dd>促销信息退订</dd>
+            <dd>账户常见问题</dd>
+        </dl>
+        <dl>
+        	<dt>配送方式</dt>
+            <dd>账户注册</dd>
+            <dd>找回密码</dd>
+            <dd>"我的凡客"功能说明</dd>
+            <dd>账户关联登录</dd>
+            <dd>促销信息退订</dd>
+            <dd>账户常见问题</dd>
+        </dl>
+        <dl>
+        	<dt>支付方式</dt>
+            <dd>账户注册</dd>
+            <dd>找回密码</dd>
+            <dd>"我的凡客"功能说明</dd>
+            <dd>账户关联登录</dd>
+            <dd>促销信息退订</dd>
+            <dd>账户常见问题</dd>
+        </dl>
+        <dl>
+        	<dt>售后服务</dt>
+            <dd>账户注册</dd>
+            <dd>找回密码</dd>
+            <dd>"我的凡客"功能说明</dd>
+            <dd>账户关联登录</dd>
+            <dd>促销信息退订</dd>
+            <dd>账户常见问题</dd>
+        </dl>
+        <dl>
+        	<dt>手机凡客</dt>
+            <dd>账户注册</dd>
+            <dd>找回密码</dd>
+            <dd>"我的凡客"功能说明</dd>
+            <dd>账户关联登录</dd>
+            <dd>促销信息退订</dd>
+            <dd>账户常见问题</dd>
+        </dl>
+        <dl>
+        	<dt>凡客达人</dt>
+            <dd>账户注册</dd>
+            <dd>找回密码</dd>
+            <dd>"我的凡客"功能说明</dd>
+            <dd>账户关联登录</dd>
+            <dd>促销信息退订</dd>
+            <dd>账户常见问题</dd>
+        </dl>
+        <dl>
+        	<dt>网站联盟</dt>
+            <dd>账户注册</dd>
+            <dd>找回密码</dd>
+            <dd>"我的凡客"功能说明</dd>
+            <dd>账户关联登录</dd>
+            <dd>促销信息退订</dd>
+            <dd>账户常见问题</dd>
+        </dl>
+        <dl>
+        	<dt>购衣常识</dt>
+            <dd>账户注册</dd>
+            <dd>找回密码</dd>
+            <dd>"我的凡客"功能说明</dd>
+            <dd>账户关联登录</dd>
+            <dd>促销信息退订</dd>
+            <dd>账户常见问题</dd>
+        </dl>
+    </div>
+    <div id="solve">
+    	<p>这条帮助是否解决了您的问题?</p>
+        <form>
+            <input type="checkbox" id="solveOK" />已解决<input type="checkbox" id="solveNO" />未解决
+            <p>问题没解决?请选择原因</p>
+            <select name="reason">
+            	<option value="writing">文字太多,阅读困难</option>
+            </select>
+         </form>
+         <p><img src="images/submit_bt.jpg" /></p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>使用Document方法</title>
+<style type="text/css">
+body{font-size:14px;
+     line-height:30px;
+	 }
+input{margin:1px;
+      width:90px;
+	  font-size:12px;
+	  padding:0;
+	  }
+#node{
+	width:100px;
+	font-size:24px;
+	font-weight:bold;
+	float: left;
+	}
+</style>
+
+<script  type="text/javascript">
+   /*
+   *改变div的内容
+   */
+   function changeLink(){
+	   //通过id找到Div对象
+      var divOb = document.getElementById("node");
+      divOb.innerHTML = "新浪";
+   }
+   /*
+   *访问相同的name属性的元素
+   */
+   function all_input(){
+	   //找name属性相同的对象
+      var arr = document.getElementsByName("season");
+      //根据id找到P对象
+	  var pOb = document.getElementById("s");
+	  var str = "";
+	  for(var i=0;i<arr.length;i++){
+		 // arr[i].value 找到组件的值
+	    str  = str + arr[i].value+"<br/>"
+	  }
+	  //设置P对象的内容
+      pOb.innerHTML  = str;
+   }
+   
+   /*
+   *根据tagName找元素
+   */
+   function s_input(){
+	  //找input的标签
+      var arr = document.getElementsByTagName("input");
+      //根据id找到P对象
+	  var pOb = document.getElementById("s");
+	  var str = "";
+	  for(var i=0;i<arr.length;i++){
+		 // arr[i].value 找到组件的值
+	    str  = str + arr[i].value+"<br/>"
+	  }
+	  pOb.innerHTML = str;
+   }
+
+
+</script>
+</head>
+
+<body>
+<div id="node">搜狐</div>
+
+<input name="b1" type="button" value="改变层内容" onclick="changeLink();" /><br />
+
+<br />
+
+<input name="season" type="text" value="春" />
+<input name="season" type="text" value="夏" />
+<input name="season" type="text" value="秋" />
+<input name="season" type="text" value="冬" />
+
+<br /><input name="b2" type="button" value="显示input内容" onclick="all_input()" />
+
+<input name="b3" type="button" value="显示season内容" onclick="s_input()" />
+<p id="s"></p>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>yy安全中心</title>
+<script type="text/javascript" src="../js/jquery-1.8.3.min.js"></script>
+<style type="text/css">
+div{
+	background:url(images/bg.jpg) no-repeat;
+	height:300px;
+	padding:50px 0px 0px 220px;
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+        $("[name='id']").focus(function(){
+			var loginId=$(this).val();
+			if(loginId == '通行证账号/邮箱'){
+				$(this).val("");
+			}
+		}
+		);
+		$("[name=id]").blur(function(){
+			var loginId=$(this).val();
+			if(loginId == ''){
+				$(this).val("通行证账号/邮箱");
+			}
+		}
+		);
+		$("[name=pwd]").focus(function(){
+			var loginPwd=$(this).val();
+			if(loginPwd == '密码'){
+				$(this).val("");
+			}
+		}
+		);
+		$("[name=pwd]").blur(function(){
+			var loginPwd=$(this).val();
+			if(loginPwd == ''){
+				$(this).val("密码");
+			}
+		}
+		);
+    });
+</script>
+</head>
+
+<body>
+<div>
+	<form>
+    	<p><input type="text" name="id" value="通行证账号/邮箱" /></p>
+        <p><input type="text" name="pwd" value="密码" /></p>
+    </form>
+    <img src="images/btn.jpg" />
+</div>
+</body>
+</html>

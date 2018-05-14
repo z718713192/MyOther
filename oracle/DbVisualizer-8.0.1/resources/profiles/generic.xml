@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE DatabaseProfile SYSTEM "dbvis-defs.dtd" [
+   <!ENTITY generic-actions SYSTEM "generic-actions.xml">
+   <!ENTITY generic-commands SYSTEM "generic-commands.xml">
+   <!ENTITY generic-tree SYSTEM "generic-tree.xml">
+   <!ENTITY generic-view SYSTEM "generic-view.xml">
+   ]>
+
+<!--
+   Copyright (c) DbVis Software AB. All Rights Reserved.
+-->
+
+<DatabaseProfile
+   desc="Generic profile for any database"
+   version="$Revision: 13243 $"
+   date="$Date: 2011-04-14 11:27:45 +0200 (Tor, 14 Apr 2011) $"
+   minver="7.1">
+
+   <!-- =================================================================== -->
+   <!-- Definition of the "generic" profile -->
+   <!-- =================================================================== -->
+
+   <Commands>
+      &generic-commands;
+   </Commands>
+
+   &generic-actions;
+
+   &generic-tree;
+
+   &generic-view;
+
+</DatabaseProfile>
